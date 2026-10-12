@@ -1,0 +1,28 @@
+<!doctype html>
+<!-- Stand-in for a Workday "Application Questions" page (Juniperhall, juniperhall.wd5, 2026-10-09). Not a
+     capture. The question text lives in a richText / legend of the enclosing formField-* container; the controls
+     carry only placeholder-ish names ("Select One Required", "Yes Required") or option texts. -->
+<html><head><meta charset="utf-8"><title>Application Questions</title></head><body>
+<div data-automation-id="applyFlowPage">
+  <div data-automation-id="formField-q1">
+    <div data-automation-id="richText"><p>Are you legally authorized to work in the United States? *</p></div>
+    <button type="button" aria-haspopup="listbox" aria-label="Select One Required" id="q1">Select One</button>
+  </div>
+  <div data-automation-id="formField-q2">
+    <div data-automation-id="richText"><p>Will you now or in the future require sponsorship for employment visa status?</p></div>
+    <div role="radiogroup" aria-label="Yes Required">
+      <div><input type="radio" id="q2y" name="q2" value="yes"><label for="q2y">Yes</label></div>
+      <div><input type="radio" id="q2n" name="q2" value="no"><label for="q2n">No</label></div>
+    </div>
+  </div>
+  <div data-automation-id="formField-q3">
+    <div data-automation-id="richText"><p>Which of the following programming languages have you used professionally?</p></div>
+    <div>
+      <div><input type="checkbox" id="q3a" name="q3a"><label for="q3a">Python</label></div>
+      <div><input type="checkbox" id="q3b" name="q3b"><label for="q3b">Java</label></div>
+      <div><input type="checkbox" id="q3c" name="q3c"><label for="q3c">None of the above</label></div>
+    </div>
+  </div>
+  <div data-automation-id="formField-firstName"><label for="fn">First Name*</label><input id="fn" type="text"></div>
+</div>
+</body></html>

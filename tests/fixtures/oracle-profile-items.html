@@ -1,0 +1,128 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+  .apply-flow-profile-item-tile__actions-container button { width: 24px; height: 24px; }
+  button { min-width: 24px; min-height: 20px; }
+  .invisible { display: none; }
+</style></head><body>
+<!-- Oracle Recruiting Cloud profile items (Fernhaven, 2026-10-09), scrubbed and simplified. Block, tile and Add button markup
+     is the real one (tests/fixtures/oracle-form-2.html: apply-flow-block--tile-profile-items, article
+     apply-flow-profile-item-tile(--invalid), summary-title / -subtitle / -validation, edit-item-icon / delete-icon,
+     profile-item-tile__new-tile). The inline form Add / Edit open is a stand-in (UNVERIFIED: no capture of it open):
+     .input-row rows, native selects for the Month / Year / School / Major / License comboboxes, Degree as pills, SAVE /
+     CANCEL. The resume import left what Fernhaven's did: an "Unnamed Major" education tile and two "Unnamed License" tiles
+     with made-up dates; Experience is empty. -->
+<div class="apply-flow-block apply-flow-block--tile-profile-items" data-kind="exp">
+  <div class="apply-flow-block__header"><h3 class="apply-flow-block__title"><span>Experience</span></h3></div>
+  <div class="apply-flow-block__form-list"><div class="profile-item-list" role="group"></div><div class="form-slot"></div>
+    <div class="profile-add-item"><button type="button" class="button apply-flow-profile-item-tile__new-tile"><span class="button__label">Add Experience</span></button></div></div>
+</div>
+<div class="apply-flow-block apply-flow-block--tile-profile-items" data-kind="edu">
+  <div class="apply-flow-block__header"><h3 class="apply-flow-block__title apply-flow-block__title--required"><span>Education</span><span aria-hidden="true" class="apply-flow-block__title--required-star"></span></h3></div>
+  <div class="apply-flow-block__form-list"><div class="profile-item-list" role="group"></div><div class="form-slot"></div>
+    <div class="profile-add-item"><button type="button" class="button apply-flow-profile-item-tile__new-tile"><span class="button__label">Add Education</span></button></div></div>
+</div>
+<div class="apply-flow-block apply-flow-block--tile-profile-items" data-kind="cert">
+  <div class="apply-flow-block__header"><h3 class="apply-flow-block__title"><span>Licenses and Certificates</span></h3></div>
+  <div class="apply-flow-block__form-list"><div class="profile-item-list" role="group"></div><div class="form-slot"></div>
+    <div class="profile-add-item"><button type="button" class="button apply-flow-profile-item-tile__new-tile"><span class="button__label">Add License</span></button></div></div>
+</div>
+<script>
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const YEARS = Array.from({ length: 30 }, (_, i) => String(2030 - i));
+let uid = 0;
+const opts = (list) => '<option value=""></option>' + list.map((o) => `<option>${o}</option>`).join('');
+const row = (label, req, control) => `<div class="input-row"><label class="input-row__label${req ? ' input-row__label--required' : ''}" for="f${uid + 1}">${label}</label><div class="input-row__control-container">${control(++uid)}</div></div>`;
+const text = (label, req) => row(label, req, (id) => `<input class="input-row__control" id="f${id}" data-name="${label}" type="text">`);
+const area = (label) => row(label, 0, (id) => `<textarea class="input-row__control" id="f${id}" data-name="${label}"></textarea>`);
+const select = (label, req, list) => row(label, req, (id) => `<select class="input-row__control" id="f${id}" data-name="${label}">${opts(list)}</select>`);
+const box = (label) => `<div class="input-row input-row--checkbox"><input type="checkbox" id="f${++uid}" data-name="${label}"><label for="f${uid}">${label}</label></div>`;
+const monthYear = (label, req) => `<div class="input-row"><span class="input-row__label${req ? ' input-row__label--required' : ''}">${label}</span><div class="input-row__control-container">
+  <select aria-label="${label} Month" data-name="${label} Month">${opts(MONTHS)}</select><select aria-label="${label} Year" data-name="${label} Year">${opts(YEARS)}</select></div></div>`;
+const pills = (label, list) => `<div class="input-row"><span class="input-row__label input-row__label--required">${label}</span><ul aria-label="${label}" data-name="${label}" class="cx-select-pills">${list.map((p) => `<li><button type="button" aria-pressed="false">${p}</button></li>`).join('')}</ul></div>`;
+const FORMS = {
+  exp: { required: ['Employer Name', 'Job Title', 'Start Date Month', 'Start Date Year'], title: 'Job Title', subtitle: 'Employer Name',
+    html: () => text('Employer Name', 1) + text('Job Title', 1) + box('Currently employed here') + monthYear('Start Date', 1) + monthYear('End Date', 0)
+      + text('City', 0) + select('Country', 0, ['Canada', 'United States']) + select('State', 0, ['North Carolina', 'Virginia']) + area('Responsibilities') },
+  edu: { required: ['Degree', 'School', 'Major'], title: 'Major', subtitle: 'School',
+    html: () => pills('Degree', ['Associates', 'Bachelors', 'Masters']) + select('Major', 1, ['Computer Science', 'Information Technology', 'Other - Field of Study Not Listed'])
+      + select('School', 1, ['George Mason University', 'Example State University', 'Other - School Not Listed']) + monthYear('Start Date', 0) + box('Graduated') + monthYear('Date Acquired', 0) },
+  cert: { required: ['License or Certificate'], title: 'License or Certificate', subtitle: '',
+    html: () => select('License or Certificate', 1, ['Cisco CCNA', 'CompTIA Network+', 'CompTIA Security+']) + monthYear('Date Acquired', 0) + monthYear('Expiration Date', 0) },
+};
+function readForm(form) {
+  const v = {};
+  for (const el of form.querySelectorAll('[data-name]')) {
+    if (el.tagName === 'UL') v[el.dataset.name] = (Array.from(el.querySelectorAll('button')).find((b) => b.getAttribute('aria-pressed') === 'true') || {}).textContent || '';
+    else v[el.dataset.name] = el.type === 'checkbox' ? (el.checked ? 'yes' : '') : el.value;
+  }
+  return v;
+}
+function writeForm(form, v) {
+  for (const el of form.querySelectorAll('[data-name]')) {
+    const x = v[el.dataset.name];
+    if (x == null) continue;
+    if (el.tagName === 'UL') el.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.textContent === x)));
+    else if (el.type === 'checkbox') el.checked = !!x;
+    else el.value = x;
+  }
+}
+function tile(blk, values, invalid) {
+  const f = FORMS[blk.dataset.kind];
+  const a = document.createElement('article');
+  a.className = 'apply-flow-profile-item-tile' + (invalid ? ' apply-flow-profile-item-tile--invalid' : '');
+  a.values = values;
+  const title = values[f.title] || (blk.dataset.kind === 'edu' ? 'Unnamed Major' : blk.dataset.kind === 'cert' ? 'Unnamed License' : 'Unnamed Job');
+  a.innerHTML = `<div class="apply-flow-profile-item-tile__summary" data-profile-item-tile="true" role="group" data-profile-item-invalid="${!!invalid}">
+    <div class="apply-flow-profile-item-tile__summary-content"><div class="apply-flow-profile-item-tile__summary-title"><span>${title}</span></div>
+    <div class="apply-flow-profile-item-tile__summary-subtitle text-color-secondary">${values[f.subtitle] || ''}</div>
+    ${invalid ? '<div class="apply-flow-profile-item-tile__summary-validation"><span>Fields to fix: 1</span></div>' : ''}</div>
+    <div class="apply-flow-profile-item-tile__actions-container"><button class="apply-flow-profile-item-tile__edit-item-icon" title="Edit" aria-label="Edit"></button>
+    <button class="apply-flow-profile-item-tile__delete-icon" title="Delete" aria-label="Delete"></button></div></div>`;
+  a.querySelector('.apply-flow-profile-item-tile__delete-icon').addEventListener('click', () => setTimeout(() => a.remove(), 150));
+  a.querySelector('.apply-flow-profile-item-tile__edit-item-icon').addEventListener('click', () => open(blk, a));
+  return a;
+}
+function open(blk, editing) {
+  const f = FORMS[blk.dataset.kind];
+  const slot = blk.querySelector('.form-slot');
+  if (slot.firstChild) return;
+  const form = document.createElement('div');
+  form.className = 'apply-flow-profile-item-form';
+  form.innerHTML = f.html() + '<div class="form-buttons"><button type="button" class="save">SAVE</button><button type="button" class="cancel">CANCEL</button></div>';
+  slot.appendChild(form);
+  if (editing) {
+    writeForm(form, editing.values);
+    editing.classList.add('invisible');
+  }
+  blk.querySelector('.profile-add-item').classList.add('invisible');
+  form.querySelectorAll('.cx-select-pills button').forEach((b) => b.addEventListener('click', () => writeForm(form, { [b.closest('ul').dataset.name]: b.textContent })));
+  const close = () => {
+    form.remove();
+    if (editing) editing.classList.remove('invisible');
+    blk.querySelector('.profile-add-item').classList.remove('invisible');
+  };
+  form.querySelector('.cancel').addEventListener('click', close);
+  form.querySelector('.save').addEventListener('click', () => {
+    const v = readForm(form);
+    if (f.required.some((k) => !v[k])) {
+      form.dataset.error = 'This info is required.';
+      return;
+    }
+    // The server round trip.
+    setTimeout(() => {
+      const list = blk.querySelector('.profile-item-list');
+      const t = tile(blk, v, false);
+      if (editing) list.replaceChild(t, editing);
+      else list.appendChild(t);
+      editing = null;
+      close();
+    }, 200);
+  });
+}
+for (const blk of document.querySelectorAll('.apply-flow-block--tile-profile-items')) blk.querySelector('.apply-flow-profile-item-tile__new-tile').addEventListener('click', () => open(blk, null));
+const [, edu, cert] = document.querySelectorAll('.apply-flow-block--tile-profile-items');
+edu.querySelector('.profile-item-list').appendChild(tile(edu, { School: 'Example State University', 'Start Date Month': 'January', 'Start Date Year': '2020' }, true));
+cert.querySelector('.profile-item-list').appendChild(tile(cert, { 'Date Acquired Month': 'March', 'Date Acquired Year': '2019' }, true));
+cert.querySelector('.profile-item-list').appendChild(tile(cert, { 'Date Acquired Month': 'May', 'Date Acquired Year': '2021' }, true));
+</script>
+</body></html>

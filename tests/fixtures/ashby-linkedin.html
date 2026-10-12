@@ -1,0 +1,22 @@
+<!doctype html>
+<!-- Stand-in for an Ashby application whose React form hydrates a moment after load (here: when window.__hydrate() is called) (2026-10-09: the LinkedIn box
+     showed the value, the form said "Missing entry for required field: LinkedIn"). Events fired before hydration
+     reach no handler; after it, a controlled field only counts what its input event delivered, and validates on
+     focusout. window.__state is the form state; window.__validate() is the Submit check. -->
+<html><head><meta charset="utf-8"><title>Application</title></head><body>
+<form>
+  <div data-field-path="_systemfield_name"><label for="name">Name</label><input id="name" type="text"></div>
+  <div data-field-path="linkedin"><label for="li">LinkedIn*</label><input id="li" type="text" required><div class="err" id="err" hidden>Missing entry for required field: LinkedIn</div></div>
+</form>
+<script>
+  window.__state = { linkedin: '' };
+  const li = document.getElementById('li'), err = document.getElementById('err');
+  window.__validate = () => { err.hidden = !!window.__state.linkedin; return !err.hidden; };
+  // Hydration starts when the page says so (a test calls __hydrate shortly after its set; a real page does it on its own).
+  window.__hydrate = () => {
+    li.addEventListener('input', () => { window.__state.linkedin = li.value; });
+    li.addEventListener('focusout', () => window.__validate());
+    window.__hydrated = true;
+  };
+</script>
+</body></html>

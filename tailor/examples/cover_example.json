@@ -1,0 +1,13 @@
+{
+  "company": "ExampleCo",
+  "role": "Site Reliability Engineer Intern",
+  "date": "October 7, 2026",
+  "greeting": "Dear Hiring Team,",
+  "paragraphs": [
+    "TEMPLATE ONLY: replace every paragraph before sending. I am applying for the Site Reliability Engineer Intern role at ExampleCo.",
+    "One paragraph on the most relevant experience, taken only from facts you can stand behind.",
+    "One paragraph on a project that matches the posting.",
+    "A short closing paragraph. Thank you for your time."
+  ],
+  "closing": "Sincerely,"
+}

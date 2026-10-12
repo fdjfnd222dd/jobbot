@@ -1,0 +1,22 @@
+<!doctype html><html><body>
+<!-- Workday My Experience (UMBERMOOR, 2026-10-09), scrubbed: the hidden input is cleared once the file is taken,
+     and the file name is listed in the upload box. -->
+<div data-automation-id="attachments-FileUpload">
+  <label for="f">Resume/CV</label>
+  <div data-automation-id="file-upload-drop-zone">Drop files here or <button data-automation-id="select-files">Select files</button>
+    <input id="f" data-automation-id="file-upload-input-ref" type="file" multiple>
+  </div>
+  <div id="list"></div>
+</div>
+<script>
+  const f = document.getElementById('f');
+  f.addEventListener('change', () => {
+    const n = f.files[0] && f.files[0].name;
+    f.value = '';
+    setTimeout(() => {
+      document.getElementById('list').innerHTML = '<div data-automation-id="file-upload-item-name">' + n + '</div><div data-automation-id="file-upload-successful"></div>';
+      f.value = '';
+    }, 300);
+  });
+</script>
+</body></html>

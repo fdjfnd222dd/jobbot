@@ -1,0 +1,41 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body>
+<!-- iCIMS candidate profile, IRONFIELD shape (2026-10-09 screenshots): each "Work Experience (n)" block starts at Title*,
+     then Employer name, City, Country, State, Start date and End date as Month / Day / Year, Description of work. The
+     resume parse left ONE block (Title "Research Assistant", Employer "Large-scale Data Center Threat Mo..."); the
+     education row has two date sets (start, expected graduation) and Did You Graduate. "Add Work Experience" adds a
+     block (a stand-in script; the real button's text is UNVERIFIED). -->
+<form id="profile">
+  <h3>Education (1)</h3>
+  <label for="s1">School</label><input id="s1" role="combobox" aria-autocomplete="list" value="EXAMPLE STATE UNIVERSITY">
+  <label for="d1">Degree</label><select id="d1"><option value="">— Make a Selection —</option><option>Bachelors</option><option selected>Masters</option></select>
+  <label for="m1">Major</label><input id="m1" type="text" value="">
+  <label for="g1">GPA</label><input id="g1" type="text" value="">
+  <div class="dates" data-k="es"></div>
+  <div class="dates" data-k="ee"></div>
+  <label for="dg">Did You Graduate?</label><select id="dg"><option value="">— Make a Selection —</option><option>Yes</option><option>No</option></select>
+  <div id="jobs"></div>
+  <button type="button" id="add">Add Work Experience</button>
+  <label for="sal">Desired Salary/Hourly Rate</label><input id="sal" type="text">
+</form>
+<script>
+const M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+let u = 0;
+const sel = (label, list, v) => `<label for="x${++u}">${label}</label><select id="x${u}"><option value=""></option>${list.map((o) => `<option${o === v ? ' selected' : ''}>${o}</option>`).join('')}</select>`;
+const txt = (label, v) => `<label for="x${++u}">${label}</label><input id="x${u}" type="text" value="${v || ''}">`;
+const date = (m, d, y) => sel('Month', M, m) + sel('Day', Array.from({ length: 31 }, (_, i) => String(i + 1)), d) + txt('Year', y);
+for (const div of document.querySelectorAll('.dates')) div.innerHTML = div.dataset.k === 'es' ? date('', '', '') : date('Dec', '1', '2027');
+function block(v) {
+  v = v || {};
+  const n = document.querySelectorAll('.job').length + 1;
+  const d = document.createElement('div');
+  d.className = 'job';
+  d.innerHTML = `<h3>Work Experience (${n})</h3>` + txt('Title*', v.title) + txt('Employer name', v.emp) + txt('City', v.city)
+    + sel('Country', ['Canada', 'United States'], v.country) + sel('State', ['North Carolina', 'Virginia'], v.state)
+    + date(v.m1, v.d1, v.y1) + date(v.m2, v.d2, v.y2)
+    + `<label for="x${++u}">Description of work</label><textarea id="x${u}">${v.desc || ''}</textarea>`;
+  document.getElementById('jobs').appendChild(d);
+}
+block({ title: 'Research Assistant', emp: 'Large-scale Data Center Threat Mo', m1: 'Aug', d1: '1', y1: '2026', desc: 'Quantum Risk Modeling ------- - Model how attackers pivot' });
+document.getElementById('add').addEventListener('click', () => setTimeout(() => block(), 100));
+</script>
+</body></html>

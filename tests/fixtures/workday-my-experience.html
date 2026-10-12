@@ -1,0 +1,87 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="af-capture-url" content="https://umbermoor.wd5.myworkdayjobs.com/en-US/Jobs/job/x/apply/applyManually"></head><body>
+<!-- Workday My Experience, scrubbed. Markup of each panel is the real one (Vanguard capture in ~/autofill/fixtures/
+     workday, class names dropped); the script stands in for Workday: Add / Add Another appends a panel, Delete removes
+     it and renumbers, "I currently work here" hides the To date. The resume parse left two work panels: a scrambled
+     Quillstone job (Company "SRE") and a project parsed as a job (no title). Education is empty. -->
+<div data-automation-id="applyFlowMyExpPage">
+  <div role="group" aria-labelledby="Work-Experience-section">
+    <h4 id="Work-Experience-section">Work Experience</h4>
+    <div id="work-panels"></div>
+    <div><button data-automation-id="add-button" id="work-add" type="button">Add Another</button></div>
+  </div>
+  <div role="group" aria-labelledby="Education-section">
+    <h4 id="Education-section">Education</h4>
+    <div id="edu-panels"></div>
+    <div><button data-automation-id="add-button" id="edu-add" type="button">Add</button></div>
+  </div>
+  <div role="group" aria-labelledby="Certifications-section">
+    <h4 id="Certifications-section">Certifications</h4>
+    <div id="cert-panels"></div>
+    <div><button data-automation-id="add-button" type="button">Add</button></div>
+  </div>
+  <div role="group" aria-labelledby="Websites-section">
+    <h4 id="Websites-section">Websites</h4>
+    <div><button data-automation-id="add-button" type="button">Add</button></div>
+  </div>
+</div>
+<script>
+let seq = 893;
+const date = (id, name, label, yearOnly) => `
+  <div data-automation-id="formField-${name}"><fieldset><legend><label><span>${label}<abbr aria-hidden="true">*</abbr></span></label></legend>
+    <div id="${id}--${name}" role="group" data-automation-id="dateInputWrapper"><div>
+      ${yearOnly ? '' : `<div><input role="spinbutton" aria-label="Month" aria-valuemax="12" aria-valuemin="1" data-automation-id="dateSectionMonth-input" value=""></div><div>/</div>`}
+      <div><input role="spinbutton" aria-label="Year" aria-valuemax="9999" aria-valuemin="1" data-automation-id="dateSectionYear-input" value=""></div>
+    </div><div aria-label="Calendar" data-automation-id="dateIcon" role="button" tabindex="0"><span> </span></div></div>
+  </fieldset></div>`;
+const text = (id, name, label, req) => `
+  <div data-automation-id="formField-${name}"><label for="${id}--${name}"><span>${label}${req ? '<abbr aria-hidden="true">*</abbr>' : ''}</span></label>
+    <div><div><input type="text" id="${id}--${name}" name="${name}" aria-required="${req ? 'true' : 'false'}" value=""></div></div></div>`;
+function workPanel() {
+  const id = 'workExperience-' + seq++;
+  return `<div data-fkit-id="${id}--null">${text(id, 'jobTitle', 'Job Title', 1)}${text(id, 'companyName', 'Company', 1)}${text(id, 'location', 'Location', 0)}
+    <div data-automation-id="formField-currentlyWorkHere"><label for="${id}--currentlyWorkHere">I currently work here</label>
+      <div><input id="${id}--currentlyWorkHere" type="checkbox" name="currentlyWorkHere" aria-required="false"></div></div>
+    <div>${date(id, 'startDate', 'From')}${date(id, 'endDate', 'To')}</div>
+    <div data-automation-id="formField-roleDescription"><label for="${id}--roleDescription">Role Description</label>
+      <div><textarea id="${id}--roleDescription" aria-required="false"></textarea></div></div></div>`;
+}
+function eduPanel() {
+  const id = 'education-' + seq++;
+  return `<div data-fkit-id="${id}--null">${text(id, 'school', 'School or University', 1)}
+    <div data-automation-id="formField-degree"><label for="${id}--degree"><span>Degree<abbr aria-hidden="true">*</abbr></span></label>
+      <div><select id="${id}--degree"><option value="">Select One</option><option>High School Diploma</option><option>Bachelor's Degree</option><option>Master's Degree</option></select></div></div>
+    ${text(id, 'fieldOfStudy', 'Field of Study', 0)}${text(id, 'gradeAverage', 'Overall Result (GPA)', 0)}
+    ${date(id, 'firstYearAttended', 'From', 1)}${date(id, 'lastYearAttended', 'To (Actual or Expected)', 1)}</div>`;
+}
+function addPanel(where, title, body) {
+  const box = document.getElementById(where);
+  const n = box.children.length + 1;
+  const p = document.createElement('div');
+  p.setAttribute('role', 'group');
+  p.setAttribute('aria-labelledby', `${title.replace(/ /g, '-')}-${n}-panel-${seq}`);
+  p.innerHTML = `<div><h5 id="${title.replace(/ /g, '-')}-${n}-panel-${seq}">${title} ${n}</h5><button type="button" class="del"><span> </span>Delete</button></div>` + body;
+  box.appendChild(p);
+  p.querySelector('.del').addEventListener('click', () => {
+    p.remove();
+    Array.from(box.children).forEach((c, i) => (c.querySelector('h5').textContent = `${title} ${i + 1}`));
+  });
+  const cur = p.querySelector('input[name="currentlyWorkHere"]');
+  if (cur) cur.addEventListener('change', () => {
+    p.querySelector('[data-automation-id="formField-endDate"]').style.display = cur.checked ? 'none' : '';
+  });
+  return p;
+}
+document.getElementById('work-add').addEventListener('click', () => addPanel('work-panels', 'Work Experience', workPanel()));
+document.getElementById('edu-add').addEventListener('click', () => addPanel('edu-panels', 'Education', eduPanel()));
+// What the resume parse left.
+const set = (p, name, v) => (p.querySelector(`[name="${name}"], [id$="--${name}"]`).value = v);
+const p1 = addPanel('work-panels', 'Work Experience', workPanel());
+set(p1, 'jobTitle', 'Systems Reliability Engineer');
+set(p1, 'companyName', 'SRE');
+const d1 = p1.querySelectorAll('[data-automation-id="dateSectionMonth-input"]');
+const y1 = p1.querySelectorAll('[data-automation-id="dateSectionYear-input"]');
+d1[0].value = '6'; y1[0].value = '2026'; d1[1].value = '8'; y1[1].value = '2026';
+const p2 = addPanel('work-panels', 'Work Experience', workPanel());
+set(p2, 'companyName', 'Threat Intelligence Pipeline');
+</script>
+</body></html>

@@ -1,0 +1,14 @@
+{
+  "name": "jobbot-tailor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local resume + cover letter rendering for jobbot: JSON -> DOCX -> PDF -> preview -> layout check",
+  "license": "MIT",
+  "scripts": {
+    "resume": "bash render.sh",
+    "cover": "bash cover.sh"
+  },
+  "dependencies": {
+    "docx": "^9.9.0"
+  }
+}

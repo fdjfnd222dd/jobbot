@@ -1,0 +1,94 @@
+<!doctype html>
+<!-- jobbot regression fixture (2026-10-09): Oracle Recruiting Cloud "cx-select-pills" question rows, markup copied from the
+     Fernhaven capture (tests/fixtures/oracle-form.html, section 2 is display:none there) and the TI capture
+     (oracle-form-2.html, "Title"). Variant A: ul[role=list][aria-label=<question>] > li > button[aria-pressed] (Fernhaven yes/no);
+     variant B: ul[role=radiogroup] > li > button[role=radio][aria-checked] (TI Title). The script stands in for Oracle's
+     React: a click presses one pill and releases the others; q4 re-creates the whole list on every click, like a re-render.
+     The last row is a lone toggle (one pill): that is a button, not a question. -->
+<html><head><meta charset="utf-8"><title>Oracle pills</title></head><body>
+<form>
+<div class="apply-flow-section">
+<div class="input-row input-row--has-picker">
+    <label class="input-row__label input-row__label--required" for="q1-1" aria-labelledby="labelText-q1 instructionsText-q1" aria-hidden="false">
+    <span class="input-row__linebreak" id="labelText-q1">Do you now or in the future require immigration benefit sponsorship from Fernhaven in order to retain or extend your authorization to work in the United States?</span>
+    <span class="input-row__label--required-star" aria-hidden="true"></span>
+</label>
+    <div class="input-row__control-container reset-z-index" id="q1" data-qa="q1">
+        <div><ul role="list" aria-label="Do you now or in the future require immigration benefit sponsorship from Fernhaven in order to retain or extend your authorization to work in the United States?" class="cx-select-pills-container"><li role="listitem"><button type="button" aria-disabled="false" aria-pressed="false" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> Yes</span></button></li><li role="listitem"><button type="button" aria-disabled="false" aria-pressed="false" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> No</span></button></li></ul></div>
+        <div class="input-row__control-decorator"></div>
+    </div>
+</div>
+
+<div class="input-row input-row--has-picker">
+    <label class="input-row__label" for="q2-1" aria-labelledby="labelText-q2 instructionsText-q2" aria-hidden="false">
+    <span class="input-row__linebreak" id="labelText-q2">Are you a recent graduate (less than 3 years since you completed your most recent degree)?</span>
+</label>
+    <div class="input-row__control-container reset-z-index" id="q2" data-qa="q2">
+        <div><ul role="list" aria-label="Are you a recent graduate (less than 3 years since you completed your most recent degree)?" class="cx-select-pills-container"><li role="listitem"><button type="button" aria-disabled="false" aria-pressed="false" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> Yes</span></button></li><li role="listitem"><button type="button" aria-disabled="false" aria-pressed="false" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> No</span></button></li></ul></div>
+        <div class="input-row__control-decorator"></div>
+    </div>
+</div>
+
+<div class="input-row input-row--has-picker">
+    <label class="input-row__label input-row__label--required" for="q3-1" aria-labelledby="labelText-q3 instructionsText-q3" aria-hidden="false">
+    <span class="input-row__linebreak" id="labelText-q3">Please confirm your preferred method of communication during the recruitment process (Standard messaging rates may apply)</span>
+    <span class="input-row__label--required-star" aria-hidden="true"></span>
+</label>
+    <div class="input-row__control-container reset-z-index" id="q3" data-qa="q3">
+        <div><ul role="list" aria-label="Please confirm your preferred method of communication during the recruitment process (Standard messaging rates may apply)" class="cx-select-pills-container"><li role="listitem"><button type="button" aria-disabled="false" aria-pressed="false" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> Email</span></button></li><li role="listitem"><button type="button" aria-disabled="false" aria-pressed="false" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> Email SMS</span></button></li><li role="listitem"><button type="button" aria-disabled="false" aria-pressed="false" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> Email WhatsApp</span></button></li></ul></div>
+        <div class="input-row__control-decorator"></div>
+    </div>
+</div>
+
+<div class="input-row input-row--has-picker">
+    <label class="input-row__label" for="title-1" aria-labelledby="labelText-title instructionsText-title" aria-hidden="false">
+    <span class="input-row__linebreak" id="labelText-title">Title</span>
+</label>
+    <div class="input-row__control-container reset-z-index" id="title" data-qa="title">
+        <div><ul role="radiogroup" aria-label="Title" class="cx-select-pills-container"><li role="presentation"><button type="button" aria-disabled="false" role="radio" aria-checked="false" tabindex="0" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> Doctor</span></button></li><li role="presentation"><button type="button" aria-disabled="false" role="radio" aria-checked="false" tabindex="-1" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> Miss</span></button></li><li role="presentation"><button type="button" aria-disabled="false" role="radio" aria-checked="false" tabindex="-1" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> Mr.</span></button></li><li role="presentation"><button type="button" aria-disabled="false" role="radio" aria-checked="false" tabindex="-1" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> Mrs.</span></button></li><li role="presentation"><button type="button" aria-disabled="false" role="radio" aria-checked="false" tabindex="-1" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> Ms.</span></button></li></ul></div>
+        <div class="input-row__control-decorator"></div>
+    </div>
+</div>
+
+<div class="input-row input-row--has-picker">
+    <label class="input-row__label input-row__label--required" for="q4-1" aria-labelledby="labelText-q4 instructionsText-q4" aria-hidden="false">
+    <span class="input-row__linebreak" id="labelText-q4">Are you at least 18 years old?</span>
+    <span class="input-row__label--required-star" aria-hidden="true"></span>
+</label>
+    <div class="input-row__control-container reset-z-index" id="q4" data-qa="q4">
+        <div data-rerender="1"><ul role="list" aria-label="Are you at least 18 years old?" class="cx-select-pills-container"><li role="listitem"><button type="button" aria-disabled="false" aria-pressed="false" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> Yes</span></button></li><li role="listitem"><button type="button" aria-disabled="false" aria-pressed="false" class="cx-select-pill-section 
+                                        "><span class="cx-select-pill-name"> No</span></button></li></ul></div>
+        <div class="input-row__control-decorator"></div>
+    </div>
+</div>
+
+<div class="input-row"><label class="input-row__label" for="note">Anything else?</label><div class="input-row__control-container"><input id="note" class="input-row__control" type="text"></div></div>
+<ul class="toolbar"><li><button type="button" aria-pressed="false">Remember this device</button></li></ul>
+</div>
+<button type="submit">Next</button>
+</form>
+<script>
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('.cx-select-pill-section');
+    if (!b) return;
+    const ul = b.closest('ul');
+    const attr = b.hasAttribute('aria-pressed') ? 'aria-pressed' : 'aria-checked';
+    for (const x of ul.querySelectorAll('.cx-select-pill-section')) x.setAttribute(attr, String(x === b));
+    const host = ul.parentElement;
+    if (host.hasAttribute('data-rerender')) host.innerHTML = ul.outerHTML.replace(/ data-jb-ref="\d+"/g, ''); // new nodes (no refs), same state
+  });
+</script>
+</body></html>

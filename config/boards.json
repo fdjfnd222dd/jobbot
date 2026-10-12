@@ -1,0 +1,1692 @@
+{
+  "_about": "Job boards `jobctl discover` searches (public ATS APIs, no login). Add a company by its board slug. Workday: tenant, wd number, site (from the careers URL https://{tenant}.{wd}.myworkdayjobs.com/{site}). Seeded 2026-10-07 from the first search run. Oracle HCM: {host, site, company} from a CandidateExperience URL. Phenom: {host, company} of a careers.<company>.com/us/en site (added 2026-10-12).",
+  "greenhouse": [
+    "robinhood",
+    "appian",
+    "astranis",
+    "cloudflare",
+    "samsara",
+    "figma",
+    "anthropic",
+    "databricks",
+    "stripe",
+    "discord",
+    "roblox",
+    "lyft",
+    "airbnb",
+    "dropbox",
+    "pinterest",
+    "reddit",
+    "coreweave",
+    "pendo",
+    "epicgames",
+    "rubrik",
+    "cohesity",
+    "elastic",
+    "gitlab",
+    "okta",
+    "mongodb",
+    "twilio",
+    "affirm",
+    "brex",
+    "chime",
+    "duolingo",
+    "scaleai",
+    "spacex",
+    "relativity",
+    "axon",
+    "sigmacomputing",
+    "netlify",
+    "fastly",
+    "planetlabs",
+    "rocketlab",
+    "hiddenlayer",
+    "datadog",
+    "purestorage",
+    "tanium",
+    "fivetran",
+    "zscaler",
+    "cribl",
+    "huntress",
+    "dragos",
+    "nozominetworks",
+    "axonius",
+    "abnormalsecurity",
+    "chainguard",
+    "tailscale",
+    "airtable",
+    "asana",
+    "carta",
+    "checkr",
+    "coursera",
+    "doordashusa",
+    "instacart",
+    "gusto",
+    "lattice",
+    "mercury",
+    "peloton",
+    "smartsheet",
+    "twitch",
+    "upstart",
+    "verkada",
+    "webflow",
+    "zocdoc",
+    "zoominfo",
+    "bugcrowd",
+    "island",
+    "netskope",
+    "orcasecurity",
+    "torq",
+    "coalition",
+    "atbay",
+    "togetherai",
+    "nebius",
+    "betterment",
+    "oscar",
+    "flatironhealth",
+    "bandwidth",
+    "sas",
+    "yext",
+    "courierhealth",
+    "solutions",
+    "khanacademy",
+    "arcboatcompany",
+    "xai",
+    "riotgamesup",
+    "gleanwork",
+    "muonspace",
+    "pdtpartners",
+    "asteraearlycareer2027",
+    "k2spacecorporation",
+    "akunacapital",
+    "memx",
+    "iex-interns",
+    "generalmatter",
+    "jetzero",
+    "fourkites",
+    "knowbe4",
+    "profluent",
+    "gassouth",
+    "instead",
+    "natera",
+    "hpiq",
+    "walleyecapital-external-students",
+    "veeamsoftware",
+    "vardaspace",
+    "ruggedrobotics",
+    "atoms",
+    "cssmerge",
+    "datacor",
+    "capstoneinvestmentadvisors",
+    "drwuniversityjobs",
+    "engineersgate",
+    "tenstorrentuniversity",
+    "clenera",
+    "judihealth",
+    "foundenergy",
+    "mastercontrol",
+    "figureai",
+    "axiscompany",
+    "attentive",
+    "dvtrading",
+    "point72",
+    "cityoffortworth",
+    "apexcompanies",
+    "burgessniple",
+    "flowtraders",
+    "hendersonbrothers",
+    "humanrightswatch",
+    "impact",
+    "langanengineeringandenvironmentalservicesllc",
+    "loenbro",
+    "mwinternshipprogram",
+    "waverlyadvisorsllc",
+    "woolpert",
+    "hankooktireamericacorp",
+    "jrmconstructionmanagementllc",
+    "omnicomhealth",
+    "panthalassa",
+    "relaypro",
+    "skhynixmemorysolutionsamericainc",
+    "americanpublichealthassociation",
+    "clearstreet",
+    "farmersmutualhailinsurancecompany",
+    "nationallifeinsurancecompany",
+    "sertis",
+    "tamara",
+    "vianttechnology",
+    "enviva",
+    "graphcore",
+    "kivaorg",
+    "reolink",
+    "sezzle",
+    "via",
+    "wongdoody",
+    "guidepointsecurity",
+    "gcmgrosvenor",
+    "arcesiumllc",
+    "amca",
+    "enova",
+    "toast",
+    "tenableinc",
+    "newrelic",
+    "imc",
+    "perpay",
+    "beamtherapeutics",
+    "workshop",
+    "klaviyocampus",
+    "pacificfusion",
+    "viamrobotics",
+    "idmeuniversityrecruiting",
+    "nisc",
+    "testnisc",
+    "eulerity",
+    "sage49",
+    "gardacp",
+    "gallup",
+    "fiveringsllc",
+    "freeformfuturecorp",
+    "acluinternships",
+    "betsson",
+    "voyagertechnologiesinc",
+    "queracomputinginc",
+    "bgeinccampus",
+    "singlestore",
+    "nex",
+    "quberesearchandtechnologies",
+    "tenet3",
+    "kodiak",
+    "gitai",
+    "mill"
+  ],
+  "lever": [
+    "extremenetworks",
+    "spotify",
+    "plaid",
+    "zoox",
+    "anchorage",
+    "aurora",
+    "nominal",
+    "saronic",
+    "rescale",
+    "highspot",
+    "kraken",
+    "mistral",
+    "outreach",
+    "ro",
+    "wealthfront",
+    "whoop",
+    "ispace-inc",
+    "shopback-2",
+    "cirrus",
+    "CesiumAstro",
+    "belvederetrading",
+    "viget",
+    "sep",
+    "anavationllc",
+    "xcimer",
+    "immuta",
+    "neighbor",
+    "hermeus",
+    "solopulseco",
+    "tevora"
+  ],
+  "ashby": [
+    "etched",
+    "notion",
+    "ramp",
+    "openai",
+    "cursor",
+    "replit",
+    "vercel",
+    "supabase",
+    "linear",
+    "modal",
+    "baseten",
+    "sierra",
+    "harvey",
+    "decagon",
+    "1password",
+    "airbyte",
+    "astronomer",
+    "clerk",
+    "deel",
+    "drata",
+    "elevenlabs",
+    "hex",
+    "inngest",
+    "mercor",
+    "mercury",
+    "mintlify",
+    "neon",
+    "netbird",
+    "perplexity",
+    "persona",
+    "plaid",
+    "posthog",
+    "prefect",
+    "railway",
+    "render",
+    "resend",
+    "runway",
+    "sardine",
+    "secureframe",
+    "semgrep",
+    "snyk",
+    "socket",
+    "stytch",
+    "temporal",
+    "unit",
+    "vanta",
+    "warp",
+    "wiz",
+    "workos",
+    "writer",
+    "zapier",
+    "niantic-spatial",
+    "dandy",
+    "rivet",
+    "revel",
+    "stradahq",
+    "tensorwave",
+    "range",
+    "bedrock-robotics",
+    "pangramlabs",
+    "bobyard",
+    "ibotta",
+    "human-computer-lab",
+    "eightsleep",
+    "Perchwell",
+    "qumulo",
+    "grow-therapy",
+    "gecko-robotics",
+    "megazone",
+    "saronic",
+    "oneapp",
+    "Talos-Trading",
+    "primer",
+    "the-exploration-company",
+    "hadrian-automation",
+    "whatnot",
+    "NorthwoodSpace",
+    "persona.ai",
+    "telus-digital",
+    "voleon",
+    "barnes",
+    "Antares",
+    "apex-technology-inc"
+  ],
+  "workday": [
+    {
+      "tenant": "labcorp",
+      "wd": "wd1",
+      "site": "External"
+    },
+    {
+      "tenant": "abb",
+      "wd": "wd3",
+      "site": "External_Career_Page"
+    },
+    {
+      "tenant": "intel",
+      "wd": "wd1",
+      "site": "External"
+    },
+    {
+      "tenant": "freddiemac",
+      "wd": "wd5",
+      "site": "External"
+    },
+    {
+      "tenant": "dukeenergy",
+      "wd": "wd1",
+      "site": "search"
+    },
+    {
+      "tenant": "rb",
+      "wd": "wd5",
+      "site": "FRS"
+    },
+    {
+      "tenant": "nike",
+      "wd": "wd1",
+      "site": "nke"
+    },
+    {
+      "tenant": "redhat",
+      "wd": "wd5",
+      "site": "jobs"
+    },
+    {
+      "tenant": "crowdstrike",
+      "wd": "wd5",
+      "site": "crowdstrikecareers"
+    },
+    {
+      "tenant": "salesforce",
+      "wd": "wd12",
+      "site": "External_Career_Site"
+    },
+    {
+      "tenant": "adobe",
+      "wd": "wd5",
+      "site": "external_experienced"
+    },
+    {
+      "tenant": "mastercard",
+      "wd": "wd1",
+      "site": "CorporateCareers"
+    },
+    {
+      "tenant": "truist",
+      "wd": "wd1",
+      "site": "Careers"
+    },
+    {
+      "tenant": "capitalone",
+      "wd": "wd12",
+      "site": "Capital_One"
+    },
+    {
+      "tenant": "broadcom",
+      "wd": "wd1",
+      "site": "External_Career"
+    },
+    {
+      "tenant": "jabil",
+      "wd": "wd5",
+      "site": "Jabil_Careers"
+    },
+    {
+      "tenant": "vanguard",
+      "wd": "wd5",
+      "site": "vanguard_external"
+    },
+    {
+      "tenant": "hpe",
+      "wd": "wd5",
+      "site": "Jobsathpe"
+    },
+    {
+      "tenant": "nvidia",
+      "wd": "wd5",
+      "site": "NVIDIAExternalCareerSite"
+    },
+    {
+      "tenant": "pnc",
+      "wd": "wd5",
+      "site": "External"
+    },
+    {
+      "tenant": "equinix",
+      "wd": "wd1",
+      "site": "External"
+    },
+    {
+      "tenant": "nelnet",
+      "wd": "wd1",
+      "site": "MyNelnet"
+    },
+    {
+      "tenant": "generalmotors",
+      "wd": "wd5",
+      "site": "Careers_GM"
+    },
+    {
+      "tenant": "swa",
+      "wd": "wd1",
+      "site": "external"
+    },
+    {
+      "tenant": "mfs",
+      "wd": "wd1",
+      "site": "MFS-Careers"
+    },
+    {
+      "tenant": "regeneron",
+      "wd": "wd1",
+      "site": "Careers"
+    },
+    {
+      "tenant": "njm",
+      "wd": "wd1",
+      "site": "njm"
+    },
+    {
+      "tenant": "costar",
+      "wd": "wd1",
+      "site": "Costar_Campus"
+    },
+    {
+      "tenant": "philips",
+      "wd": "wd3",
+      "site": "jobs-and-careers"
+    },
+    {
+      "tenant": "sailpoint",
+      "wd": "wd1",
+      "site": "SailPoint"
+    },
+    {
+      "tenant": "alliance",
+      "wd": "wd3",
+      "site": "nissanjobs"
+    },
+    {
+      "tenant": "motorolasolutions",
+      "wd": "wd5",
+      "site": "Careers"
+    },
+    {
+      "tenant": "mckesson",
+      "wd": "wd3",
+      "site": "External_Careers"
+    },
+    {
+      "tenant": "dowjones",
+      "wd": "wd1",
+      "site": "Dow_Jones_Career"
+    },
+    {
+      "tenant": "applebank",
+      "wd": "wd5",
+      "site": "applebankcareers"
+    },
+    {
+      "tenant": "salesforce",
+      "wd": "wd12",
+      "site": "Futureforce_Internships"
+    },
+    {
+      "tenant": "mastercard",
+      "wd": "wd1",
+      "site": "Campus"
+    },
+    {
+      "tenant": "keybank",
+      "wd": "wd5",
+      "site": "External_Career_Site"
+    },
+    {
+      "tenant": "icf",
+      "wd": "wd5",
+      "site": "icfexternal_career_site"
+    },
+    {
+      "tenant": "gevernova",
+      "wd": "wd5",
+      "site": "only_confidential_executive_recruiting"
+    },
+    {
+      "tenant": "gevernova",
+      "wd": "wd5",
+      "site": "vernova_externalsite"
+    },
+    {
+      "tenant": "centene",
+      "wd": "wd5",
+      "site": "Centene_External"
+    },
+    {
+      "tenant": "boseallaboutme",
+      "wd": "wd503",
+      "site": "Bose_Careers"
+    },
+    {
+      "tenant": "aoins",
+      "wd": "wd5",
+      "site": "AutoOwners"
+    },
+    {
+      "tenant": "jainglobal",
+      "wd": "wd5",
+      "site": "ExternalSite"
+    },
+    {
+      "tenant": "wexinc",
+      "wd": "wd5",
+      "site": "WEXInc"
+    },
+    {
+      "tenant": "aero",
+      "wd": "wd5",
+      "site": "external"
+    },
+    {
+      "tenant": "copart",
+      "wd": "wd12",
+      "site": "copart"
+    },
+    {
+      "tenant": "permianres",
+      "wd": "wd12",
+      "site": "permian_resources_careers"
+    },
+    {
+      "tenant": "markelcorp",
+      "wd": "wd5",
+      "site": "globalcareers"
+    },
+    {
+      "tenant": "swbc",
+      "wd": "wd1",
+      "site": "swbccareers"
+    },
+    {
+      "tenant": "vcuhealth",
+      "wd": "wd1",
+      "site": "vcuhealth_careers"
+    },
+    {
+      "tenant": "granite",
+      "wd": "wd1",
+      "site": "careers"
+    },
+    {
+      "tenant": "cnoinc",
+      "wd": "wd5",
+      "site": "careers"
+    },
+    {
+      "tenant": "dmainc",
+      "wd": "wd5",
+      "site": "dma"
+    },
+    {
+      "tenant": "veteransunited",
+      "wd": "wd1",
+      "site": "VUHL"
+    },
+    {
+      "tenant": "avav",
+      "wd": "wd1",
+      "site": "avav"
+    },
+    {
+      "tenant": "manulife",
+      "wd": "wd3",
+      "site": "MFCJH_Jobs"
+    },
+    {
+      "tenant": "tamus",
+      "wd": "wd1",
+      "site": "TAMIU_Student_Employment"
+    },
+    {
+      "tenant": "graco",
+      "wd": "wd501",
+      "site": "graco_careers"
+    },
+    {
+      "tenant": "aoins",
+      "wd": "wd5",
+      "site": "concord"
+    },
+    {
+      "tenant": "expedia",
+      "wd": "wd108",
+      "site": "private"
+    },
+    {
+      "tenant": "midlandsb",
+      "wd": "wd1",
+      "site": "msbcareers"
+    },
+    {
+      "tenant": "entrust",
+      "wd": "wd1",
+      "site": "entrustcareers"
+    },
+    {
+      "tenant": "lighthouseelectric",
+      "wd": "wd108",
+      "site": "LEC_Careers"
+    },
+    {
+      "tenant": "boeing",
+      "wd": "wd1",
+      "site": "EXTERNAL_CAREERS"
+    },
+    {
+      "tenant": "otis",
+      "wd": "wd504",
+      "site": "rec_ext_gateway"
+    },
+    {
+      "tenant": "hcsc",
+      "wd": "wd1",
+      "site": "HCSC_External"
+    },
+    {
+      "tenant": "nc",
+      "wd": "wd108",
+      "site": "NC_Careers"
+    },
+    {
+      "tenant": "td",
+      "wd": "wd3",
+      "site": "TD_Bank_Careers"
+    },
+    {
+      "tenant": "gartner",
+      "wd": "wd5",
+      "site": "EXT"
+    },
+    {
+      "tenant": "thehartford",
+      "wd": "wd5",
+      "site": "Careers_External"
+    },
+    {
+      "tenant": "generac",
+      "wd": "wd5",
+      "site": "external"
+    },
+    {
+      "tenant": "pentair",
+      "wd": "wd5",
+      "site": "pentair_careers"
+    },
+    {
+      "tenant": "thomsonreuters",
+      "wd": "wd5",
+      "site": "External_Career_Site"
+    },
+    {
+      "tenant": "cox",
+      "wd": "wd1",
+      "site": "Cox_External_Career_Site_1"
+    },
+    {
+      "tenant": "cai",
+      "wd": "wd5",
+      "site": "computer_aid"
+    },
+    {
+      "tenant": "atcllc",
+      "wd": "wd5",
+      "site": "atcllc"
+    },
+    {
+      "tenant": "nordsonhcm",
+      "wd": "wd501",
+      "site": "nordsoncareers"
+    },
+    {
+      "tenant": "cisco",
+      "wd": "wd5",
+      "site": "cisco_careers"
+    },
+    {
+      "tenant": "moog",
+      "wd": "wd5",
+      "site": "moog_external_career_site"
+    },
+    {
+      "tenant": "badgermeter",
+      "wd": "wd5",
+      "site": "US_CareerSite"
+    },
+    {
+      "tenant": "gfs",
+      "wd": "wd5",
+      "site": "usjobs-gen-gfs"
+    },
+    {
+      "tenant": "rbc",
+      "wd": "wd3",
+      "site": "RBCEARLYTALENT1"
+    },
+    {
+      "tenant": "ffive",
+      "wd": "wd5",
+      "site": "f5jobs"
+    },
+    {
+      "tenant": "hntb",
+      "wd": "wd5",
+      "site": "hntb_university_careers"
+    },
+    {
+      "tenant": "hntb",
+      "wd": "wd5",
+      "site": "hntb_careers"
+    },
+    {
+      "tenant": "elevancehealth",
+      "wd": "wd1",
+      "site": "ELV-ET"
+    },
+    {
+      "tenant": "trimble",
+      "wd": "wd1",
+      "site": "TrimbleCareers"
+    },
+    {
+      "tenant": "lowes",
+      "wd": "wd5",
+      "site": "LWS_External_CS"
+    },
+    {
+      "tenant": "northwesternmutual",
+      "wd": "wd5",
+      "site": "corporate-careers"
+    },
+    {
+      "tenant": "highmarkhealth",
+      "wd": "wd1",
+      "site": "highmark"
+    },
+    {
+      "tenant": "amat",
+      "wd": "wd1",
+      "site": "External"
+    },
+    {
+      "tenant": "amfam",
+      "wd": "wd1",
+      "site": "AmFamGroupInternCareers"
+    },
+    {
+      "tenant": "relx",
+      "wd": "wd3",
+      "site": "RiskSolutions"
+    },
+    {
+      "tenant": "fhlbc",
+      "wd": "wd1",
+      "site": "search"
+    },
+    {
+      "tenant": "autodesk",
+      "wd": "wd1",
+      "site": "Ext"
+    },
+    {
+      "tenant": "primient",
+      "wd": "wd1",
+      "site": "External_Careers"
+    },
+    {
+      "tenant": "sterlingmets",
+      "wd": "wd5",
+      "site": "Mets"
+    },
+    {
+      "tenant": "gaig",
+      "wd": "wd1",
+      "site": "GAIG_External"
+    },
+    {
+      "tenant": "chartermfg",
+      "wd": "wd5",
+      "site": "Charter_Careers"
+    },
+    {
+      "tenant": "aba",
+      "wd": "wd1",
+      "site": "aba"
+    },
+    {
+      "tenant": "ttc",
+      "wd": "wd1",
+      "site": "Toro_External_Careers"
+    },
+    {
+      "tenant": "cboe",
+      "wd": "wd1",
+      "site": "External_Career_CBOE"
+    },
+    {
+      "tenant": "aep",
+      "wd": "wd1",
+      "site": "AEPCareerSite"
+    },
+    {
+      "tenant": "axos",
+      "wd": "wd5",
+      "site": "Axos"
+    },
+    {
+      "tenant": "gehc",
+      "wd": "wd5",
+      "site": "GEHC_ExternalSite"
+    },
+    {
+      "tenant": "tencent",
+      "wd": "wd1",
+      "site": "lightspeed"
+    },
+    {
+      "tenant": "crowe",
+      "wd": "wd12",
+      "site": "external_careers"
+    },
+    {
+      "tenant": "marvell",
+      "wd": "wd1",
+      "site": "MarvellCareers"
+    },
+    {
+      "tenant": "vrtx",
+      "wd": "wd501",
+      "site": "vertex_careers"
+    },
+    {
+      "tenant": "lplfinancial",
+      "wd": "wd1",
+      "site": "university"
+    },
+    {
+      "tenant": "modernatx",
+      "wd": "wd1",
+      "site": "M_tx"
+    },
+    {
+      "tenant": "micron",
+      "wd": "wd1",
+      "site": "External"
+    },
+    {
+      "tenant": "jj",
+      "wd": "wd5",
+      "site": "JJ"
+    },
+    {
+      "tenant": "hp",
+      "wd": "wd5",
+      "site": "externalcareersite"
+    },
+    {
+      "tenant": "gilead",
+      "wd": "wd1",
+      "site": "gileadcareers"
+    },
+    {
+      "tenant": "lifefitness",
+      "wd": "wd1",
+      "site": "searchlfn"
+    },
+    {
+      "tenant": "accuray",
+      "wd": "wd5",
+      "site": "external"
+    },
+    {
+      "tenant": "cadence",
+      "wd": "wd1",
+      "site": "University_CST"
+    },
+    {
+      "tenant": "entegris",
+      "wd": "wd1",
+      "site": "entegriscareers"
+    },
+    {
+      "tenant": "cadence",
+      "wd": "wd1",
+      "site": "External_Careers"
+    },
+    {
+      "tenant": "rockwellautomation",
+      "wd": "wd1",
+      "site": "External_Rockwell_Automation"
+    },
+    {
+      "tenant": "hitachi",
+      "wd": "wd1",
+      "site": "hitachi"
+    },
+    {
+      "tenant": "selinc",
+      "wd": "wd1",
+      "site": "SEL"
+    },
+    {
+      "tenant": "marvell",
+      "wd": "wd1",
+      "site": "MarvellCareers2"
+    },
+    {
+      "tenant": "allegion",
+      "wd": "wd5",
+      "site": "careers"
+    },
+    {
+      "tenant": "rockwellautomation",
+      "wd": "wd1",
+      "site": "external-rockwell-automation-early-careers"
+    },
+    {
+      "tenant": "sanofi",
+      "wd": "wd3",
+      "site": "SanofiCareers"
+    },
+    {
+      "tenant": "vanguard",
+      "wd": "wd5",
+      "site": "contractors_restricted"
+    },
+    {
+      "tenant": "zoll",
+      "wd": "wd5",
+      "site": "ZOLLMedicalCorp"
+    },
+    {
+      "tenant": "alston",
+      "wd": "wd1",
+      "site": "ExternalCareer"
+    },
+    {
+      "tenant": "manh",
+      "wd": "wd5",
+      "site": "campus"
+    },
+    {
+      "tenant": "mitel",
+      "wd": "wd3",
+      "site": "mitelcareers"
+    },
+    {
+      "tenant": "trumpf",
+      "wd": "wd3",
+      "site": "trumpf_students"
+    },
+    {
+      "tenant": "hp",
+      "wd": "wd5",
+      "site": "EXTEU-AC-CareerSite"
+    },
+    {
+      "tenant": "modmed",
+      "wd": "wd501",
+      "site": "ModMed12"
+    },
+    {
+      "tenant": "swbc",
+      "wd": "wd1",
+      "site": "informationtechnology"
+    },
+    {
+      "tenant": "aptiv",
+      "wd": "wd5",
+      "site": "aptiv_careers"
+    },
+    {
+      "tenant": "cmu",
+      "wd": "wd115",
+      "site": "cmu"
+    },
+    {
+      "tenant": "commercebank",
+      "wd": "wd1",
+      "site": "commercejobs"
+    },
+    {
+      "tenant": "allisontransmission",
+      "wd": "wd1",
+      "site": "ati-external"
+    },
+    {
+      "tenant": "parsons",
+      "wd": "wd5",
+      "site": "search"
+    },
+    {
+      "tenant": "barrywehmiller",
+      "wd": "wd1",
+      "site": "BWConfidential"
+    },
+    {
+      "tenant": "jci",
+      "wd": "wd5",
+      "site": "JCI"
+    },
+    {
+      "tenant": "wawa",
+      "wd": "wd1",
+      "site": "careers"
+    },
+    {
+      "tenant": "globalfoundries",
+      "wd": "wd1",
+      "site": "External"
+    },
+    {
+      "tenant": "borgwarner",
+      "wd": "wd5",
+      "site": "BorgWarner_Careers"
+    },
+    {
+      "tenant": "abbott",
+      "wd": "wd5",
+      "site": "abbottcareers"
+    },
+    {
+      "tenant": "workday",
+      "wd": "wd5",
+      "site": "workday_early_career"
+    },
+    {
+      "tenant": "danaher",
+      "wd": "wd1",
+      "site": "DanaherJobs"
+    },
+    {
+      "tenant": "buildertrend",
+      "wd": "wd108",
+      "site": "External_Careers"
+    },
+    {
+      "tenant": "aah",
+      "wd": "wd5",
+      "site": "External"
+    },
+    {
+      "tenant": "assurant",
+      "wd": "wd1",
+      "site": "External_Limited_Posting"
+    },
+    {
+      "tenant": "q2ebanking",
+      "wd": "wd5",
+      "site": "Q2"
+    },
+    {
+      "tenant": "xcelenergy",
+      "wd": "wd1",
+      "site": "External"
+    },
+    {
+      "tenant": "synnex",
+      "wd": "wd5",
+      "site": "tdsynnexcareers"
+    },
+    {
+      "tenant": "fanniemae",
+      "wd": "wd1",
+      "site": "FannieMaeCareers"
+    },
+    {
+      "tenant": "fmr",
+      "wd": "wd1",
+      "site": "fidelitycareers"
+    },
+    {
+      "tenant": "draper",
+      "wd": "wd5",
+      "site": "Draper_Careers"
+    },
+    {
+      "tenant": "statestreet",
+      "wd": "wd1",
+      "site": "Global"
+    },
+    {
+      "tenant": "my7elevenhr",
+      "wd": "wd12",
+      "site": "Careers"
+    },
+    {
+      "tenant": "invesco",
+      "wd": "wd1",
+      "site": "IVZ"
+    },
+    {
+      "tenant": "invesco",
+      "wd": "wd1",
+      "site": "IVZearlycareers"
+    },
+    {
+      "tenant": "ancestry",
+      "wd": "wd501",
+      "site": "Careers"
+    },
+    {
+      "tenant": "directsupply",
+      "wd": "wd501",
+      "site": "direct-supply-careers"
+    },
+    {
+      "tenant": "firstnational",
+      "wd": "wd12",
+      "site": "fnbocareers"
+    },
+    {
+      "tenant": "mufgub",
+      "wd": "wd3",
+      "site": "mufg-earlycareers"
+    },
+    {
+      "tenant": "baird",
+      "wd": "wd1",
+      "site": "careers"
+    },
+    {
+      "tenant": "pacificlife",
+      "wd": "wd1",
+      "site": "PacificLifeCareers"
+    },
+    {
+      "tenant": "greenheckgroup",
+      "wd": "wd5",
+      "site": "external"
+    },
+    {
+      "tenant": "americancentury",
+      "wd": "wd5",
+      "site": "AmericanCenturyInvestments"
+    },
+    {
+      "tenant": "radiancetech",
+      "wd": "wd12",
+      "site": "Radiance_External"
+    },
+    {
+      "tenant": "tcenergy",
+      "wd": "wd3",
+      "site": "CAREER_SITE_TC"
+    },
+    {
+      "tenant": "lthc",
+      "wd": "wd1",
+      "site": "ExcellusBCBSCareers"
+    },
+    {
+      "tenant": "pg",
+      "wd": "wd5",
+      "site": "1000"
+    },
+    {
+      "tenant": "guidestone",
+      "wd": "wd1",
+      "site": "guidestone"
+    },
+    {
+      "tenant": "thrivent",
+      "wd": "wd5",
+      "site": "external"
+    },
+    {
+      "tenant": "cmegroup",
+      "wd": "wd1",
+      "site": "cme_careers"
+    },
+    {
+      "tenant": "athene",
+      "wd": "wd5",
+      "site": "athene_careers"
+    },
+    {
+      "tenant": "theocc",
+      "wd": "wd5",
+      "site": "careers"
+    },
+    {
+      "tenant": "churchdwight",
+      "wd": "wd1",
+      "site": "chdcareers"
+    },
+    {
+      "tenant": "avisbudget",
+      "wd": "wd1",
+      "site": "abg_careers"
+    },
+    {
+      "tenant": "flir",
+      "wd": "wd1",
+      "site": "flircareers"
+    },
+    {
+      "tenant": "basspro",
+      "wd": "wd1",
+      "site": "careers"
+    },
+    {
+      "tenant": "aspentech",
+      "wd": "wd5",
+      "site": "aspentech"
+    },
+    {
+      "tenant": "guardianlife",
+      "wd": "wd5",
+      "site": "guardian-life-careers"
+    },
+    {
+      "tenant": "aksteel",
+      "wd": "wd1",
+      "site": "careers"
+    },
+    {
+      "tenant": "amgen",
+      "wd": "wd1",
+      "site": "careers"
+    },
+    {
+      "tenant": "walmart",
+      "wd": "wd504",
+      "site": "WalmartExternal"
+    },
+    {
+      "tenant": "spgi",
+      "wd": "wd5",
+      "site": "SPGI_Careers"
+    },
+    {
+      "tenant": "spgi",
+      "wd": "wd5",
+      "site": "Kensho_Careers"
+    },
+    {
+      "tenant": "dimensional",
+      "wd": "wd5",
+      "site": "dfa_careers"
+    },
+    {
+      "tenant": "dickssportinggoods",
+      "wd": "wd1",
+      "site": "DSG"
+    },
+    {
+      "tenant": "countryfinancial",
+      "wd": "wd5",
+      "site": "COUNTRYCorporateInternships"
+    },
+    {
+      "tenant": "chrobinson",
+      "wd": "wd5",
+      "site": "CHRobinson"
+    },
+    {
+      "tenant": "hyvee",
+      "wd": "wd1",
+      "site": "HyVeeCareers"
+    },
+    {
+      "tenant": "cibc",
+      "wd": "wd3",
+      "site": "search"
+    },
+    {
+      "tenant": "cibc",
+      "wd": "wd3",
+      "site": "campus"
+    },
+    {
+      "tenant": "barclays",
+      "wd": "wd3",
+      "site": "External_Career_Site_Barclays"
+    },
+    {
+      "tenant": "snc",
+      "wd": "wd1",
+      "site": "snc_external_career_site"
+    },
+    {
+      "tenant": "momentive",
+      "wd": "wd1",
+      "site": "MC"
+    },
+    {
+      "tenant": "drivetime",
+      "wd": "wd1",
+      "site": "DriveTime"
+    },
+    {
+      "tenant": "intel",
+      "wd": "wd1",
+      "site": "en-us"
+    },
+    {
+      "tenant": "vermeer",
+      "wd": "wd5",
+      "site": "externalcareersite"
+    },
+    {
+      "tenant": "saabusa",
+      "wd": "wd1",
+      "site": "saab_careers"
+    },
+    {
+      "tenant": "newrez",
+      "wd": "wd1",
+      "site": "NRZ"
+    },
+    {
+      "tenant": "homedepot",
+      "wd": "wd5",
+      "site": "careerdepot"
+    },
+    {
+      "tenant": "stryker",
+      "wd": "wd1",
+      "site": "StrykerCareers"
+    },
+    {
+      "tenant": "draftkings",
+      "wd": "wd1",
+      "site": "Campus_Career_Portal"
+    },
+    {
+      "tenant": "brunswick",
+      "wd": "wd1",
+      "site": "search"
+    },
+    {
+      "tenant": "ecolab",
+      "wd": "wd1",
+      "site": "ecolab_external"
+    },
+    {
+      "tenant": "pimco",
+      "wd": "wd1",
+      "site": "pimco-careers"
+    },
+    {
+      "tenant": "deezee",
+      "wd": "wd108",
+      "site": "DeeZee_Careers"
+    },
+    {
+      "tenant": "standoutforgood",
+      "wd": "wd12",
+      "site": "StandOutForGood"
+    },
+    {
+      "tenant": "poet",
+      "wd": "wd1",
+      "site": "POET"
+    },
+    {
+      "tenant": "ceritypartners",
+      "wd": "wd12",
+      "site": "ceritypartnerscareers"
+    },
+    {
+      "tenant": "capgroup",
+      "wd": "wd1",
+      "site": "capitalgroupcareers"
+    },
+    {
+      "tenant": "oshkoshcorporation",
+      "wd": "wd5",
+      "site": "Oshkosh"
+    },
+    {
+      "tenant": "aes",
+      "wd": "wd1",
+      "site": "AES_US"
+    },
+    {
+      "tenant": "cigna",
+      "wd": "wd5",
+      "site": "cignacareers"
+    },
+    {
+      "tenant": "ercot",
+      "wd": "wd1",
+      "site": "ercot_careers"
+    },
+    {
+      "tenant": "cat",
+      "wd": "wd5",
+      "site": "CaterpillarCareers"
+    },
+    {
+      "tenant": "michelinhr",
+      "wd": "wd3",
+      "site": "Michelin"
+    },
+    {
+      "tenant": "fnbcorp",
+      "wd": "wd501",
+      "site": "FNBCORP"
+    },
+    {
+      "tenant": "clarios",
+      "wd": "wd5",
+      "site": "clarioscareers"
+    },
+    {
+      "tenant": "polaris",
+      "wd": "wd5",
+      "site": "PolarisJobs"
+    },
+    {
+      "tenant": "elkay",
+      "wd": "wd1",
+      "site": "Elkay_External"
+    },
+    {
+      "tenant": "ciena",
+      "wd": "wd5",
+      "site": "Careers"
+    },
+    {
+      "tenant": "sbdinc",
+      "wd": "wd1",
+      "site": "Stanley_Black_Decker_Career_Site"
+    },
+    {
+      "tenant": "blueorigin",
+      "wd": "wd5",
+      "site": "blueorigin"
+    },
+    {
+      "tenant": "geaerospace",
+      "wd": "wd5",
+      "site": "ge_externalsite"
+    },
+    {
+      "tenant": "novonesis",
+      "wd": "wd103",
+      "site": "Novonesis_Careers"
+    },
+    {
+      "tenant": "slihrms",
+      "wd": "wd3",
+      "site": "Careers"
+    },
+    {
+      "tenant": "disney",
+      "wd": "wd5",
+      "site": "disneycareerdc"
+    }
+  ],
+  "oracle": [
+    {
+      "host": "eedu.fa.em3.oraclecloud.com",
+      "site": "CX_1003",
+      "company": "WTW"
+    },
+    {
+      "host": "ibqbjb.fa.ocs.oraclecloud.com",
+      "site": "Honeywell",
+      "company": "Honeywell"
+    },
+    {
+      "host": "icbpjb.fa.ocs.oraclecloud.com",
+      "site": "LazardProfessionalCareers",
+      "company": "Lazard"
+    },
+    {
+      "host": "hdnn.fa.us6.oraclecloud.com",
+      "site": "CX",
+      "company": "Arconic"
+    },
+    {
+      "host": "fa-exvu-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site": "CX_1",
+      "company": "GM financial"
+    },
+    {
+      "host": "ibwujb.fa.ocs.oraclecloud.com",
+      "site": "CX_1001",
+      "company": "Ralliant"
+    },
+    {
+      "host": "hdjq.fa.us2.oraclecloud.com",
+      "site": "CX_1",
+      "company": "Emerson Electric"
+    },
+    {
+      "host": "egud.fa.us2.oraclecloud.com",
+      "site": "CX_1",
+      "company": "AutoZone"
+    },
+    {
+      "host": "egay.fa.us6.oraclecloud.com",
+      "site": "CX_4001",
+      "company": "NOV"
+    },
+    {
+      "host": "egug.fa.us2.oraclecloud.com",
+      "site": "CX_1",
+      "company": "American Express"
+    },
+    {
+      "host": "hcgn.fa.us2.oraclecloud.com",
+      "site": "CX_1",
+      "company": "Citizens Financial Group"
+    },
+    {
+      "host": "egup.fa.us2.oraclecloud.com",
+      "site": "CX",
+      "company": "Vertiv"
+    },
+    {
+      "host": "ecnf.fa.us2.oraclecloud.com",
+      "site": "CX",
+      "company": "Tradeweb"
+    },
+    {
+      "host": "fa-etbx-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site": "nfcu",
+      "company": "Navy Federal"
+    },
+    {
+      "host": "fa-evmr-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site": "CX_1",
+      "company": "Nokia"
+    },
+    {
+      "host": "ebgj.fa.us2.oraclecloud.com",
+      "site": "CX_1",
+      "company": "Pella"
+    },
+    {
+      "host": "jpmc.fa.oraclecloud.com",
+      "site": "CX_1001",
+      "company": "JP Morgan Chase"
+    },
+    {
+      "host": "ebxr.fa.us2.oraclecloud.com",
+      "site": "CX_1",
+      "company": "DTCC"
+    },
+    {
+      "host": "eofe.fa.us2.oraclecloud.com",
+      "site": "CX_1001",
+      "company": "BNY"
+    },
+    {
+      "host": "fa-eups-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site": "ULSolutionsCareers",
+      "company": "UL Solutions"
+    },
+    {
+      "host": "ekkh.fa.us2.oraclecloud.com",
+      "site": "CX_2002",
+      "company": "Hormel Foods"
+    },
+    {
+      "host": "ejko.fa.us2.oraclecloud.com",
+      "site": "CX_3",
+      "company": "Blue Cross Blue Shield of Michigan"
+    },
+    {
+      "host": "ebwh.fa.us2.oraclecloud.com",
+      "site": "CX_1001",
+      "company": "Macy's"
+    },
+    {
+      "host": "hctz.fa.us2.oraclecloud.com",
+      "site": "CX_1001",
+      "company": "onsemi"
+    },
+    {
+      "host": "fa-eqcd-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site": "CX_1",
+      "company": "Hunt Oil Company"
+    },
+    {
+      "host": "fa-eowa-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site": "CSXCareers",
+      "company": "CSX"
+    },
+    {
+      "host": "ejia.fa.us6.oraclecloud.com",
+      "site": "CX_1001",
+      "company": "S&C Electric Company"
+    },
+    {
+      "host": "iadugs.fa.ocs.oraclecloud.com",
+      "site": "CX_1001",
+      "company": "Legrand"
+    },
+    {
+      "host": "iawmqy.fa.ocs.oraclecloud.com",
+      "site": "careers",
+      "company": "Dell Technologies"
+    },
+    {
+      "host": "emit.fa.ca3.oraclecloud.com",
+      "site": "CX_2001",
+      "company": "WSP"
+    },
+    {
+      "host": "edbz.fa.us2.oraclecloud.com",
+      "site": "CX",
+      "company": "Texas Instruments"
+    },
+    {
+      "host": "hdde.fa.us2.oraclecloud.com",
+      "site": "CX",
+      "company": "Rheem"
+    },
+    {
+      "host": "cva.fa.us1.oraclecloud.com",
+      "site": "CX_3",
+      "company": "Standard Aero"
+    },
+    {
+      "host": "fa-etum-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site": "CX_1",
+      "company": "GuideWell Mutual"
+    },
+    {
+      "host": "fa-ewgu-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site": "CX_2001",
+      "company": "Chubb"
+    },
+    {
+      "host": "fa-exty-saasfaprod1.fa.ocs.oraclecloud.com",
+      "site": "Intern",
+      "company": "Howmet Aerospace Inc."
+    }
+  ],
+  "phenom": [
+    {
+      "host": "careers.butterball.com",
+      "company": "Butterball"
+    },
+    {
+      "host": "careers.truist.com",
+      "company": "Truist"
+    },
+    {
+      "host": "careers.mitre.org",
+      "company": "MITRE"
+    }
+  ]
+}

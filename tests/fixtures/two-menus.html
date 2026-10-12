@@ -1,0 +1,35 @@
+<!doctype html>
+<!-- Two react-select style dropdowns (Northfield, 2026-10-07): the first one's menu is left open and
+     re-renders its options; the second names its own listbox via aria-controls when opened.
+     The third shows nothing until you type (Elmstone "Discipline"). -->
+<html><head><meta charset="utf-8"><title>menus</title></head><body>
+<form>
+  <label id="gpa-l" for="gpa">What is your current GPA?*</label>
+  <div class="select-shell"><div class="select__control"><input id="gpa" role="combobox" aria-labelledby="gpa-l" aria-required="true" type="text"></div>
+    <div class="select__menu" id="gpa-menu"><div role="option">3.0 - 3.29</div><div role="option">3.5 - 3.69</div></div></div>
+  <label id="gd-l" for="gd">What is your expected graduation date?*</label>
+  <div class="select-shell"><div class="select__control" id="gd-ctl"><input id="gd" role="combobox" aria-labelledby="gd-l" aria-required="true" type="text"></div></div>
+  <div id="portal"></div>
+  <label id="dis-l" for="dis">Discipline*</label>
+  <div class="select-shell"><div class="select__control"><input id="dis" role="combobox" aria-labelledby="dis-l" aria-required="true" type="text"></div><div id="dis-menu"></div></div>
+</form>
+<script>
+  // GPA menu stays open and re-renders (new nodes) every 100 ms.
+  setInterval(() => { const m = document.getElementById('gpa-menu'); m.innerHTML = '<div role="option">3.0 - 3.29</div><div role="option">3.5 - 3.69</div>'; }, 100);
+  const gd = document.getElementById('gd');
+  function openGd() {
+    const p = document.getElementById('portal');
+    p.innerHTML = '<div role="listbox" id="gd-list"><div role="option">Fall 2027</div><div role="option">Spring 2028</div></div>';
+    gd.setAttribute('aria-controls', 'gd-list');
+    p.querySelectorAll('[role=option]').forEach((o) => o.addEventListener('click', () => { gd.value = ''; document.getElementById('gd-ctl').insertAdjacentHTML('afterbegin', '<div class="select__single-value">' + o.textContent + '</div>'); p.innerHTML = ''; }));
+  }
+  document.getElementById('gd-ctl').addEventListener('mousedown', openGd);
+  gd.addEventListener('mousedown', openGd);
+  const dis = document.getElementById('dis');
+  dis.addEventListener('input', () => {
+    const m = document.getElementById('dis-menu');
+    const all = ['Computer Science', 'Information Systems', 'Other'];
+    m.innerHTML = dis.value ? '<div class="select__menu">' + all.filter((a) => a.toLowerCase().includes(dis.value.toLowerCase())).map((a) => '<div role="option">' + a + '</div>').join('') + '</div>' : '';
+  });
+</script>
+</body></html>

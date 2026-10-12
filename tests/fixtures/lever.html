@@ -1,0 +1,54 @@
+<!doctype html>
+<!-- jobbot regression fixture (2026-10-07, Lever Northstone FDIE intern, --dry). Lever's markup patterns:
+     a <label> that wraps the whole field (with hidden "No location found" / "Loading" helpers), a location
+     box that needs a pick from its suggestions (cleared on blur otherwise), question text in a sibling
+     .application-label before radio / checkbox groups, ✱ as the required marker, an EEO signature section,
+     and a high-school year select that must never get the college grad year. -->
+<html><head><meta charset="utf-8"><title>lever</title>
+<style>.dropdown-container{display:none}.hidden{display:none}</style></head>
+<body><form id="application-form">
+<ul>
+<li class="application-question"><label><div class="application-label">Full name<span class="required">✱</span></div>
+  <div class="application-field"><input type="text" name="name" required></div></label></li>
+<li class="application-question"><label><div class="application-label">Current location <span class="required">✱</span></div>
+  <div class="application-field"><input class="location-input" id="location-input" type="text" name="location" required>
+    <input id="selected-location" type="hidden" name="selectedLocation">
+    <div class="dropdown-container" id="dd"><div class="dropdown-results"></div>
+      <div class="dropdown-no-results hidden">No location found. Try entering a different location</div>
+      <div class="dropdown-loading-results hidden">Loading</div></div></div></label></li>
+<li class="application-question custom-question"><div class="application-label full-width"><div class="text">Will this be your final internship before graduating? <span class="required">✱</span></div></div>
+  <div class="application-field full-width required-field"><ul data-qa="multiple-choice">
+    <li><label><input type="radio" name="cards[a][field0]" value="Yes" required><span>Yes</span></label></li>
+    <li><label><input type="radio" name="cards[a][field0]" value="No" required><span>No</span></label></li></ul></div></li>
+<li class="application-question custom-question"><div class="application-label full-width"><div class="text">Language Skill(s) (Check all that apply) <span class="required">✱</span></div></div>
+  <div class="application-field full-width required-field"><ul data-qa="checkboxes">
+    <li><label><input type="checkbox" name="cards[b][field0]" value="English"><span>English (ENG)</span></label></li>
+    <li><label><input type="checkbox" name="cards[b][field0]" value="Spanish"><span>Spanish (SPA)</span></label></li>
+    <li><label><input type="checkbox" name="cards[b][field0]" value="French"><span>French (FRA)</span></label></li></ul></div></li>
+<li class="application-question custom-question"><label><div class="application-label">Year of High School Graduation<span class="required">✱</span></div>
+  <div class="application-field"><select name="cards[c][field1]" required><option value="">Select...</option><option>2020</option><option>2021</option><option>2027</option></select></div></label></li>
+</ul>
+<div id="disabilitySignatureSection">
+  <div class="application-question"><label><div class="application-label">Name</div><div class="application-field"><input type="text" name="eeo[disabilitySignature]" placeholder="Enter your full name" required></div></label></div>
+  <div class="application-question"><label><div class="application-label">Date</div><div class="application-field"><input type="text" name="eeo[disabilitySignatureDate]" placeholder="MM/DD/YYYY" required></div></label></div>
+</div>
+<button type="button" id="btn-submit">Submit application</button>
+</form>
+<script>
+  const PLACES = ['Shoreville, VA, USA', 'North Shoreville, VA, USA', 'Virginia City, NV, USA'];
+  const inp = document.getElementById('location-input'), dd = document.getElementById('dd'), res = dd.querySelector('.dropdown-results');
+  let t = null, picked = false;
+  inp.addEventListener('input', () => {
+    picked = false; clearTimeout(t);
+    t = setTimeout(() => {
+      res.innerHTML = '';
+      for (const p of PLACES.filter((x) => x.toLowerCase().includes(inp.value.toLowerCase().split(',')[0]))) {
+        const d = document.createElement('div'); d.className = 'dropdown-location'; d.textContent = p;
+        d.addEventListener('click', () => { inp.value = p; picked = true; document.getElementById('selected-location').value = JSON.stringify({ name: p }); dd.style.display = 'none'; });
+        res.appendChild(d);
+      }
+      dd.style.display = 'block';
+    }, 300);
+  });
+  inp.addEventListener('blur', () => setTimeout(() => { if (!picked) inp.value = ''; }, 200));
+</script></body></html>

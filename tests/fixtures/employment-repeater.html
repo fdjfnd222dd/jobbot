@@ -1,0 +1,34 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body>
+<!-- A generic optional "Employment" repeater (the shape some Greenhouse boards add: Company name, Title, Start / End
+     month + year, Current role, "+ Add another"). A stand-in, UNVERIFIED against a live board: no capture yet. -->
+<form>
+  <h2>Apply for this job</h2>
+  <label for="fn">First Name</label><input id="fn" type="text" value="Pat">
+  <h3>Employment</h3>
+  <div id="jobs"></div>
+  <button type="button" id="add">+ Add another</button>
+  <h3>Voluntary Self-Identification</h3>
+  <label for="g">Gender</label><select id="g"><option value="">Select...</option><option>Male</option><option>Female</option></select>
+</form>
+<script>
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+let n = 0;
+function job(removable) {
+  const i = ++n;
+  const d = document.createElement('div');
+  d.className = 'employment-entry';
+  const sel = (id, label) => `<label for="${id}">${label}</label><select id="${id}"><option value="">Month</option>${MONTHS.map((m) => `<option>${m}</option>`).join('')}</select>`;
+  d.innerHTML = `<label for="c${i}">Company name</label><input id="c${i}" type="text">
+    <label for="t${i}">Title</label><input id="t${i}" type="text">
+    ${sel('sm' + i, 'Start date month')}<label for="sy${i}">Start date year</label><input id="sy${i}" type="text">
+    ${sel('em' + i, 'End date month')}<label for="ey${i}">End date year</label><input id="ey${i}" type="text">
+    <input type="checkbox" id="cur${i}"><label for="cur${i}">Current role</label>
+    ${removable ? '<button type="button" class="rm">Remove</button>' : ''}`;
+  document.getElementById('jobs').appendChild(d);
+  const rm = d.querySelector('.rm');
+  if (rm) rm.addEventListener('click', () => d.remove());
+}
+job(false);
+document.getElementById('add').addEventListener('click', () => job(true));
+</script>
+</body></html>

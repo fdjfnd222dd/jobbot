@@ -1,0 +1,38 @@
+{
+  "manifest_version": 2,
+  "name": "Jobbot (local agent build of Formhand)",
+  "version": "0.1.0",
+  "description": "Private, local-only build of Formhand driven by the jobctl CLI through native messaging. Never published.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "jobbot-agent@local",
+      "strict_min_version": "128.0"
+    }
+  },
+  "permissions": [
+    "<all_urls>",
+    "tabs",
+    "tabGroups",
+    "scripting",
+    "webNavigation",
+    "nativeMessaging",
+    "notifications"
+  ],
+  "background": {
+    "scripts": ["agent/background.js"],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_title": "Jobbot: connection status",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png"
+    }
+  },
+  "icons": {
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png",
+    "128": "icons/icon-128.png"
+  }
+}

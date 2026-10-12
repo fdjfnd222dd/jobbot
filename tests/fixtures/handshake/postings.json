@@ -1,0 +1,254 @@
+{
+ "results": [
+  {
+   "id": 2107900894,
+   "created_at": "2026-10-09T20:18:50.740-04:00",
+   "expiration_date": "2026-11-08T23:59:59.999-05:00",
+   "job_id": 11629194,
+   "job_name": "Highway Design Engineer - Round Rock, TX (26612)",
+   "employer_id": 16681,
+   "job": {
+    "id": 11629194,
+    "employer_name": "JMT",
+    "title": "Highway Design Engineer - Round Rock, TX (26612)",
+    "remote": false,
+    "employment_type_name": "Full-Time",
+    "job_type_name": "Internship",
+    "location_names": [
+     "Round Rock, Texas, United States"
+    ],
+    "location_cities": [
+     "Round Rock"
+    ],
+    "location_states": [
+     "Texas"
+    ],
+    "created_at": "2026-10-09T20:17:24.960-04:00",
+    "salary_min_raw": "",
+    "salary_max_raw": "",
+    "pay_schedule": null,
+    "ats_provider": null
+   }
+  },
+  {
+   "id": 2107792244,
+   "created_at": "2026-10-09T18:46:06.481-04:00",
+   "expiration_date": "2026-11-09T02:59:59.999-05:00",
+   "job_id": 11629037,
+   "job_name": "Technical Product Management Intern (R27432)",
+   "employer_id": 256165,
+   "job": {
+    "id": 11629037,
+    "employer_name": "Yarrowwick",
+    "title": "Technical Product Management Intern (R27432)",
+    "remote": true,
+    "employment_type_name": "Full-Time",
+    "job_type_name": "Internship",
+    "location_names": [],
+    "location_cities": [],
+    "location_states": [],
+    "created_at": "2026-10-09T18:44:16.982-04:00",
+    "salary_min_raw": "",
+    "salary_max_raw": "",
+    "pay_schedule": null,
+    "ats_provider": null
+   }
+  },
+  {
+   "id": 2107691531,
+   "created_at": "2026-10-09T17:58:05.883-04:00",
+   "expiration_date": "2026-10-24T23:59:59.999-04:00",
+   "job_id": 11628890,
+   "job_name": "Digital Product Internship - Design, Development, Management",
+   "employer_id": 32343,
+   "job": {
+    "id": 11628890,
+    "employer_name": "Viget",
+    "title": "Digital Product Internship - Design, Development, Management",
+    "remote": false,
+    "employment_type_name": "Full-Time",
+    "job_type_name": "Internship",
+    "location_names": [
+     "Boulder, Colorado, United States"
+    ],
+    "location_cities": [
+     "Boulder"
+    ],
+    "location_states": [
+     "Colorado"
+    ],
+    "created_at": "2026-10-09T17:55:28.312-04:00",
+    "salary_min_raw": "600000",
+    "salary_max_raw": "600000",
+    "pay_schedule": {
+     "name": "Annual Salary"
+    },
+    "ats_provider": null
+   }
+  },
+  {
+   "id": 2107677688,
+   "created_at": "2026-10-09T17:52:26.245-04:00",
+   "expiration_date": "2026-11-09T02:59:59.999-05:00",
+   "job_id": 11628873,
+   "job_name": "Sales Development Engineer Intern",
+   "employer_id": 22155,
+   "job": {
+    "id": 11628873,
+    "employer_name": "Pinecrest",
+    "title": "Sales Development Engineer Intern",
+    "remote": false,
+    "employment_type_name": "Full-Time",
+    "job_type_name": "Internship",
+    "location_names": [
+     "Santa Rosa, California, United States"
+    ],
+    "location_cities": [
+     "Santa Rosa"
+    ],
+    "location_states": [
+     "California"
+    ],
+    "created_at": "2026-10-09T17:49:57.782-04:00",
+    "salary_min_raw": "2793",
+    "salary_max_raw": "3008",
+    "pay_schedule": {
+     "name": "Hourly Wage"
+    },
+    "ats_provider": null
+   }
+  },
+  {
+   "id": 2107651664,
+   "created_at": "2026-10-09T17:41:26.528-04:00",
+   "expiration_date": "2026-11-09T02:59:59.999-05:00",
+   "job_id": 11628836,
+   "job_name": "Program Manager Intern",
+   "employer_id": 64210,
+   "job": {
+    "id": 11628836,
+    "employer_name": "Driftmere",
+    "title": "Program Manager Intern",
+    "remote": false,
+    "employment_type_name": "Full-Time",
+    "job_type_name": "Internship",
+    "location_names": [
+     "Seattle, Washington, United States"
+    ],
+    "location_cities": [
+     "Seattle"
+    ],
+    "location_states": [
+     "Washington"
+    ],
+    "created_at": "2026-10-09T17:39:35.703-04:00",
+    "salary_min_raw": "3000",
+    "salary_max_raw": "4000",
+    "pay_schedule": {
+     "name": "Hourly Wage"
+    },
+    "ats_provider": null
+   }
+  },
+  {
+   "id": 2107624442,
+   "created_at": "2026-10-09T17:30:02.934-04:00",
+   "expiration_date": "2026-11-09T02:59:59.999-05:00",
+   "job_id": 11628803,
+   "job_name": "Software Engineering Intern",
+   "employer_id": 64210,
+   "job": {
+    "id": 11628803,
+    "employer_name": "Driftmere",
+    "title": "Software Engineering Intern",
+    "remote": false,
+    "employment_type_name": "Full-Time",
+    "job_type_name": "Internship",
+    "location_names": [
+     "Chicago, Illinois"
+    ],
+    "location_cities": [
+     "Chicago"
+    ],
+    "location_states": [
+     "Illinois"
+    ],
+    "created_at": "2026-10-09T17:28:32.426-04:00",
+    "salary_min_raw": "4000",
+    "salary_max_raw": "5000",
+    "pay_schedule": {
+     "name": "Hourly Wage"
+    },
+    "ats_provider": null
+   }
+  },
+  {
+   "id": 2107396993,
+   "created_at": "2026-10-09T16:08:31.893-04:00",
+   "expiration_date": "2026-11-09T00:59:59.999-05:00",
+   "job_id": 11628441,
+   "job_name": "Graduate Product Management Intern",
+   "employer_id": 23043,
+   "job": {
+    "id": 11628441,
+    "employer_name": "Schneider Electric",
+    "title": "Graduate Product Management Intern",
+    "remote": false,
+    "employment_type_name": "Full-Time",
+    "job_type_name": "Internship",
+    "location_names": [
+     "Nashville, Tennessee, United States"
+    ],
+    "location_cities": [
+     "Nashville"
+    ],
+    "location_states": [
+     "Tennessee"
+    ],
+    "created_at": "2026-10-09T16:06:01.867-04:00",
+    "salary_min_raw": "2950",
+    "salary_max_raw": "3550",
+    "pay_schedule": {
+     "name": "Hourly Wage"
+    },
+    "ats_provider": null
+   }
+  },
+  {
+   "id": 2107290860,
+   "created_at": "2026-10-09T15:41:38.886-04:00",
+   "expiration_date": "2026-11-08T23:59:59.999-05:00",
+   "job_id": 11628254,
+   "job_name": "CDC Global Immunization Division - Acquisitions Information Technology Solutions Activity Research Fellowship",
+   "employer_id": 113906,
+   "job": {
+    "id": 11628254,
+    "employer_name": "Oak Ridge Institute for Science and Education",
+    "title": "CDC Global Immunization Division - Acquisitions Information Technology Solutions Activity Research Fellowship",
+    "remote": false,
+    "employment_type_name": "Full-Time",
+    "job_type_name": "Internship",
+    "location_names": [
+     "Atlanta, Georgia, United States"
+    ],
+    "location_cities": [
+     "Atlanta"
+    ],
+    "location_states": [
+     "Georgia"
+    ],
+    "created_at": "2026-10-09T15:35:40.434-04:00",
+    "salary_min_raw": "543900",
+    "salary_max_raw": "658100",
+    "pay_schedule": {
+     "name": "Monthly Stipend"
+    },
+    "ats_provider": null
+   }
+  }
+ ],
+ "current_page": 1,
+ "total_pages": 1,
+ "total": 8,
+ "success": true
+}

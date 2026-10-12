@@ -1,0 +1,36 @@
+<!doctype html>
+<!-- Minimal stand-in for a react-select multi box (Glenfield "Which languages..." 2026-10-07):
+     options render on input, a pick appends a multi-value label and clears the search text. -->
+<html><head><meta charset="utf-8"><title>multi</title></head><body>
+<form>
+  <label id="lang-label" for="lang">Which scripting / programming languages do you have experience with?*</label>
+  <div class="select__control"><div class="select__value-container select__value-container--is-multi" id="vals">
+    <input id="lang" class="select__input" role="combobox" aria-labelledby="lang-label" aria-required="true" aria-expanded="false" type="text" value="">
+  </div></div>
+  <div id="menu"></div>
+  <label id="gd-label" for="gd">When is your graduation date?*</label>
+  <div class="select__control"><div class="select__value-container" id="gdvals">
+    <input id="gd" class="select__input" role="combobox" aria-labelledby="gd-label" aria-required="true" aria-expanded="false" type="text" value="">
+  </div></div>
+</form>
+<script>
+  const LANGS = ['Go', 'Java', 'Javascript', 'Python', 'Shell', 'Typescript'];
+  const input = document.getElementById('lang'), menu = document.getElementById('menu'), vals = document.getElementById('vals');
+  function render() {
+    menu.innerHTML = '';
+    const q = input.value.toLowerCase();
+    LANGS.filter((l) => !q || l.toLowerCase().includes(q)).forEach((l) => {
+      const o = document.createElement('div'); o.setAttribute('role', 'option'); o.textContent = l;
+      o.addEventListener('click', () => {
+        const v = document.createElement('div'); v.className = 'select__multi-value__label'; v.textContent = l;
+        vals.insertBefore(v, input); input.value = ''; menu.innerHTML = ''; input.setAttribute('aria-expanded', 'false');
+      });
+      menu.appendChild(o);
+    });
+    input.setAttribute('aria-expanded', 'true');
+  }
+  input.addEventListener('input', render);
+  input.addEventListener('mousedown', render);
+  // The grad-date box shows no list for free text (its options are seasons, typed text matches none).
+</script>
+</body></html>

@@ -1,0 +1,41 @@
+<!doctype html>
+<!-- Stand-in for Rippling's apply form (ats.rippling.com, Amberbrook 2026-10-09). Not a capture; built from what
+     the run saw: the SMS consent radios are div[role="radio"] (not <input>), labelled by a sibling <p>; Apply
+     (button[data-testid="Apply"]) is disabled until that group is answered; the EEO selects are comboboxes whose
+     question is a sibling <p> and whose menu lists "Choose not to disclose" / "I am not a protected veteran". -->
+<html><head><meta charset="utf-8"><title>Apply - Software Engineer Intern</title></head><body>
+<form>
+  <div class="q"><p id="l-first">First name</p><input id="first" name="first_name" aria-labelledby="l-first" value=""></div>
+  <div class="q"><p id="l-sms">Do you consent to receive text messages (SMS) about your application?</p>
+    <div role="radiogroup" aria-labelledby="l-sms" id="sms">
+      <div role="radio" tabindex="0" aria-checked="false"><span>Yes - I consent to receive text messages</span></div>
+      <div role="radio" tabindex="0" aria-checked="false"><span>No - I do not consent to receive text messages</span></div>
+    </div>
+  </div>
+  <div class="q"><p>Gender</p><div class="dd" role="combobox" aria-haspopup="listbox" aria-expanded="false" tabindex="0" data-opts="Male|Female|Non-binary|Choose not to disclose"><span class="val">Select</span></div></div>
+  <div class="q"><p>Race</p><div class="dd" role="combobox" aria-haspopup="listbox" aria-expanded="false" tabindex="0" data-opts="Asian|White|Black or African American|Choose not to disclose"><span class="val">Select</span></div></div>
+  <div class="q"><p>Are you Hispanic or Latino?</p><div class="dd" role="combobox" aria-haspopup="listbox" aria-expanded="false" tabindex="0" data-opts="Yes|No|Choose not to disclose"><span class="val">Select</span></div></div>
+  <div class="q"><p>Veteran status</p><div class="dd" role="combobox" aria-haspopup="listbox" aria-expanded="false" tabindex="0" data-opts="I am a protected veteran|I am not a protected veteran|Choose not to disclose"><span class="val">Select</span></div></div>
+  <button type="button" data-testid="Apply" id="apply" disabled>Apply</button>
+</form>
+<div id="menu" role="listbox" hidden></div>
+<script>
+  const menu = document.getElementById('menu');
+  let open = null;
+  const radios = Array.from(document.querySelectorAll('#sms [role=radio]'));
+  radios.forEach((r) => r.addEventListener('click', () => {
+    radios.forEach((x) => x.setAttribute('aria-checked', String(x === r)));
+    document.getElementById('apply').disabled = false;
+  }));
+  document.querySelectorAll('.dd').forEach((d) => d.addEventListener('click', () => {
+    open = d; menu.innerHTML = ''; menu.hidden = false;
+    d.setAttribute('aria-expanded', 'true');
+    
+    d.dataset.opts.split('|').forEach((t) => {
+      const o = document.createElement('div'); o.setAttribute('role', 'option'); o.textContent = t;
+      o.addEventListener('click', (e) => { e.stopPropagation(); d.querySelector('.val').textContent = t; menu.hidden = true; d.setAttribute('aria-expanded', 'false'); });
+      menu.appendChild(o);
+    });
+  }));
+</script>
+</body></html>

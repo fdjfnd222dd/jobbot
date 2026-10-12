@@ -1,0 +1,49 @@
+<!doctype html>
+<!-- Handshake's native Apply modal, reduced from the live markup (exu.joinhandshake.com/jobs/<id>, 2026-10-09):
+     the job page's own Apply / Save buttons, then the role=dialog the Apply button opens. Slot 1: the resume
+     Handshake pre-picked (green chip + Close). Slot 2: a transcript slot with the search box and "Upload new". -->
+<html lang="en">
+<head><meta charset="utf-8"><title>Software Engineering Intern | Example Co | Handshake</title></head>
+<body>
+<main>
+  <h1>Software Engineering Intern</h1>
+  <button type="button">Save</button>
+  <button type="button">Share</button>
+  <button type="button">Apply</button>
+  <p>Job description text.</p>
+</main>
+<div class="rosetta-dialog rosetta-modal" data-rosetta-dialog-root="">
+  <div class="rosetta-dialog__sheet" id="id-1" role="dialog" tabindex="-1" aria-labelledby="apply-modal-title-123">
+    <div class="rosetta-dialog__overflow"><div>
+      <div><h2 id="apply-modal-title-123" tabindex="-1">Apply to Example Co</h2>
+        <button type="button" aria-label="Cancel application" data-hook="apply-modal-close-button">x</button></div>
+      <div data-hook="apply-modal-content"><form><div><div>
+        <div><div>Your school year does not match what is requested for this job.</div>If this information is incorrect, please update it <a href="/profiles/1" target="_blank">here</a>.</div>
+      </div><div>
+        <h3>Details from Example Co:</h3>
+        <p>Applying requires a resume and transcript.</p>
+        <div><fieldset aria-labelledby="apply-modal-document-heading-123-1-0">
+          <div><h4 id="apply-modal-document-heading-123-1-0">Attach your resume</h4></div>
+          <div role="status" aria-label="alert positive" class="rosetta-inline-alert"><div class="rosetta-inline-alert__body">
+            <div class="rosetta-inline-alert__children"><h5>Old_Resume.pdf</h5><a href="/docs/1" target="_blank">Preview document</a></div>
+            <span><button type="button" aria-label="Close" class="rosetta-inline-alert__close-button">x</button></span>
+          </div></div>
+        </fieldset></div>
+        <div><fieldset aria-labelledby="apply-modal-document-heading-123-2-0">
+          <div><h4 id="apply-modal-document-heading-123-2-0">Attach your transcript</h4></div>
+          <div data-hook="apply-modal-document-search">
+            <input placeholder="Search your transcripts" type="search" role="combobox" aria-expanded="false" value="">
+            <span>or</span>
+            <label for="up-2">Upload new</label>
+            <input id="up-2" accept="application/pdf" name="file-Transcript" type="file">
+            <p>Max file size: 1 MB</p>
+          </div>
+        </fieldset></div>
+      </div></div>
+      <div><div></div><button type="button">Submit Application</button></div>
+      </form></div>
+    </div></div>
+  </div>
+</div>
+</body>
+</html>

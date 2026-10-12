@@ -1,0 +1,19 @@
+# Everything personal stays local and untracked.
+data/
+runs/
+resumes/
+profiles/
+firefox-profile/
+*.pdf
+*.docx
+*.png
+*.jpg
+*.jpeg
+profile.json
+answers.json
+applied.jsonl
+secrets*
+*.env
+.env*
+node_modules/
+*.bak-*

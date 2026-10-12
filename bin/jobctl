@@ -1,0 +1,1123 @@
+#!/usr/bin/env node
+/*
+ * jobctl: drive job applications in Firefox from the command line.
+ * Run `jobctl help` for the command list. Output is JSON unless noted, so
+ * Claude (the /apply skill) can read it; exit code 0 = ok, 10 = needs input,
+ * 11 = blocked, 12 = ready to submit (not pressed), 1 = error.
+ */
+'use strict';
+
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const { spawn, spawnSync } = require('node:child_process');
+
+const P = require('../lib/paths');
+const C = require('../lib/client');
+
+const HELP = `jobctl: job applications on autopilot (Firefox + Formhand engine)
+
+Setup
+  jobctl install                 register the native-messaging host with Firefox
+  jobctl browser [stop]          start (or stop) the job-hunt Firefox with the extension
+  jobctl doctor                  check everything is wired up
+  jobctl reload                  restart the extension after editing extension/agent/
+
+Finding
+  jobctl discover [--role REGEX] [--city LIST] [--anywhere] [--all] [--max-age DAYS (default 7)]   open internships from config/boards.json (Greenhouse,
+                                 Lever, Ashby, Workday, Oracle HCM, Phenom APIs), filtered to the owner's roles and cities,
+                                 minus companies already applied to. Lists only; applies to nothing.
+                                 --city "portland,austin,remote": only those places (metro names expand to suburbs:
+                                 portland, austin, seattle, bay area, dc, nyc, richmond, chicago, raleigh/rtp, boston, remote; anything else is literal)
+                                 Also reads the SimplifyJobs internship list (raw GitHub README, cached 1 h in
+                                 data/simplify-cache.md); hits carry source:"simplify" and their Greenhouse / Ashby /
+                                 Lever / Workday boards are added to config/boards.json. --no-simplify: boards only
+                                 (a Simplify network failure only warns). 
+                                 --new: only postings not seen before (saved to data/discover-latest.json);
+                                 --notify: desktop notification (the daily timer uses --new --notify)
+                                 --part-time: paid part-time work during the school year (remote by default, 30 days,
+                                 Handshake Part-Time of any job type, $15/hr floor, spring terms allowed)
+                                 --brief: one line per hit (JSON stays the default). Each run appends its funnel
+                                 (hits, skips by reason, applyable) to data/discover-funnel.jsonl
+
+  jobctl handshake [--query "Q1,Q2"] [--max-age N] [--city LIST] [--brief]   internships on Handshake (EXU's board) through
+                                 the logged-in jobbot Firefox: searches the owner's roles (or --query), same filters / skips /
+                                 output as discover (source:"handshake"; applyVia handshake = native apply on Handshake,
+                                 external = the employer's ATS link in url). discover includes Handshake by default
+                                 (--no-handshake: skip it). Logged out: exit 11, the owner logs in once in the jobbot window.
+  jobctl find "<company>" "<title>" [--city X] [--json]   resolve a LinkedIn listing to its real ATS posting:
+                                 config/boards.json, then slug guesses on Greenhouse / Ashby / Lever, then Workday
+                                 tenants; fuzzy title match; prints the apply URL, the posting summary and runner-ups.
+                                 Newly found boards are added to config/boards.json. --json: raw JSON only.
+
+Replies (read-only; the /inbox skill drives these)
+  jobctl inbox-query             print the Gmail search query (since data/inbox-state.json lastCheck, default 14 days back;
+                                 ATS senders + keywords, minus promotions / job alerts / digests)
+  jobctl inbox-plan <emails.json> <rows.json|rows-dir>   classify the emails, match them to tracker rows and print
+                                 {updates, unmatched, counts, deadlines} as JSON. Writes nothing.
+  jobctl inbox-done              record lastCheck=now in data/inbox-state.json
+
+Applying
+  jobctl posting <url> [--text]  read a posting via its ATS API (no tab): pay/hr, age, flags, gate
+  jobctl tailor <url> [--build <slug> [--from <prior>] [--company C] [--text-file F] [--force] [--json]]
+                                 rank facts.md alternates + skills for a posting; --build also writes a first-draft
+                                 data/resumes/<slug>.json (best prior resume, skills reordered, grad date), renders
+                                 it and lints it (exit 2 = lint failed, else render.sh's code). A second posting at
+                                 a company gets its own name (PatExample_Resume_<Co>_<RoleTag>); a slug of
+                                 another posting is never overwritten (<slug>-2). Prints bullets by id, posting
+                                 keywords, the best alternates, todo, and the report block the tailor returns.
+  jobctl tailor --finish <slug> [--edits <file|->] [--json]   apply bullet edits ([{"id":"e1.0","text":"..."},
+                                 {"id":"p0.1","drop":true}, {"after":"e1.1","text":"..."}]), render, lint, report.
+                                 Exit 0 = ready (return the report), 2 = todo lists what to fix.
+  jobctl tailor --check <resume.json> [--company C]   never-untrue lint (DO NOT CLAIM, em dash, invented numbers,
+                                 other company, a line moved to another job); lists each reworded bullet with what
+                                 it added / dropped vs its closest source (lines already reviewed in another
+                                 tailored resume are counted as carried). Exit 2 on errors.
+  jobctl jd <url>                open a posting, print its text (for tailoring), close it
+  jobctl apply <url> [--resume F] [--cover F] [--transcript F] [--company C] [--role R] [--location L] [--no-submit] [--dry]
+                                 --dry: everything except the final Submit (fills, uploads, creates accounts;
+                                 owner OK 2026-10-07) for testing
+  jobctl batch <file|urls...> [--no-submit] [--full]   apply to many links in a row; stops on none, reports all
+  jobctl continue [run] [--no-submit|--submit] [--full]
+                                 apply / batch / continue / answer / answer-batch / code print text by default: run,
+                                 status, exit meaning, company, role, message, ONE LINE PER NEED (ref, kind, * required,
+                                 label, value, tried/error, options as a JSON array), last shot, and a submitted run's
+                                 tracker row (row: {docId, data}). A finished run closes its queue item.
+                                 --json: the same as compact JSON; --full: the whole report.
+  jobctl row [run] [--location "City, ST"] [--req ID]   the tracker row for a submitted run ({docId, data}),
+                                 location from the posting (--location when the ATS has no API)
+  jobctl rows --unlogged         JSON [{run, docId, data}] for submitted runs whose tracker row is not written yet
+                                 (the first call marks the runs submitted before it as written: baseline)
+  jobctl rows --logged <run...|all>   mark runs as written to the tracker (data/logged.json)
+  jobctl queue [--all]           postings to apply to next (data/queue.json, survives /clear); --all includes done
+  jobctl queue add <url> [--company C] [--role R] [--resume F] [--note N]   dedupes by posting
+  jobctl queue rm <url|n>        remove an item (n = its number in jobctl queue)
+  jobctl queue next              the first pending item as JSON (exit 1 when none)
+  jobctl test [fast|all|<file or name>...]   run the tests through the shared lock (scripts/test.sh)
+  jobctl answer <ref> <value> [--run R] [--no-save] [--continue]   fill a field the run asked about (saved to the
+                                 bank, the run's company as {company}; --no-save for posting-specific answers)
+  jobctl answer-batch [file|-] [--run R] [--continue]   many answers at once from a file or stdin:
+                                 JSON [{"ref":"0:12","value":"Yes","save":false}]
+                                 --continue (answer, answer-batch, code): when every answer went in, resume the run
+                                 in the same call (= jobctl continue; --no-submit/--submit pass through) and print
+                                 {answered, run} with continue's exit code; any failed answer: {answered,
+                                 continued:false, reason}, exit 1, run left alone
+  jobctl remember "<question>" "<answer>" [--company C]   add to the Q&A bank without a page
+                                 (with --company, that name becomes {company} in both)
+  jobctl answers [search] [--all]   counts of the Q&A bank by topic; a search word lists the matches; --all lists all
+  jobctl hiccup "<what>" [--kind K] [--topic T] [--fix "idea"]   log a hiccup by hand (hand fixes on a run are logged by
+                                 themselves); --resolve <key> "<fix>" closes a cluster
+  jobctl session start [--brief] | report [--days N] [--save] [--md]   start marks a session (SessionStart hook) and
+                                 lists open hiccups (--brief: 12 lines max: queue, tracker, scorecard trend, top hiccups);
+                                 report groups this session's hiccups + driver stops for the fix pass; --save also
+                                 appends the session's scorecard line (data/sessions/scorecard.jsonl)
+  jobctl friction [--days N]     what keeps slowing applications down (data/friction.jsonl): fix the top item
+  jobctl review-answers [--json] audit the bank: answers naming a company, DO NOT CLAIM items, duplicates
+  jobctl forget <id> [id...]     remove bank entries (ids from review-answers)
+  jobctl status [run] [--dry]    dashboard: recent runs, what each one is waiting for (every need; --dry: test runs
+                                 too). With a run id (or last): that run's message and needs, one line each, options.
+  jobctl runs                    recent runs;  jobctl show [run]  one run in full
+  jobctl log [--all|--json]      the last 10 applications submitted (--all / --json: every one, as JSON)
+
+Low level (current run's tab unless --tab N / --run R)
+  jobctl snap [--text] [--brief] fields, buttons, signals of the page (--brief: one line per field)
+  jobctl code <code> [--continue]   type an emailed security code / PIN into its box(es) (split boxes: one char
+                                 each); --continue resumes the run (--run R or last) once every box is filled
+  jobctl press <css selector>     click an element the snapshot does not list (script links)
+  jobctl deep [label-regex|index value]   list / type into fields inside shadow roots (web-component forms snap cannot see)
+  jobctl set <ref> <value> | click <ref> | options <ref> [search text] | upload <ref|resume|cover> <file>
+  jobctl goto <url> | text | shot [file] | tabs | open <url>
+  jobctl drop <run> [reason]     give up on a stopped run (stale posting / skipped) and close its tab
+  jobctl tabs-clean              close every tab no unfinished run is waiting on (8 GB RAM)
+  jobctl lane <run|last> [owner|work|done]   tab-group lane by hand: red NEEDS YOU (the owner acts in the tab),
+                                 green JOBBOT WORKING, grey DONE; apply / continue set lanes themselves
+  jobctl lanes                   re-sort every waiting run's tab into its lane (after a restart or reload)
+  jobctl handoffs [--watch]      runs the owner handed back by dragging a red tab into JOBBOT WORKING (or DONE); --watch
+                                 polls every 3 s, one line per hand-back (run it in a Monitor during /apply)
+  jobctl html <ref> [--up N]     markup around a field (debugging a live site)
+  jobctl capture <file.html>     save the page's HTML (offline test fixture; data/ or tests/fixtures/)
+  jobctl pw <site>               make sure a site has a keyring password (never printed;
+                                 the owner reads it in KWallet Manager)
+`;
+
+function out(obj, code) {
+  // Write everything before exiting: stdout here can be a non-blocking pipe, and a plain write + exit cut
+  // `jobctl discover | node ...` off at 64 KB mid-JSON (2026-10-08). Blocking loop, so exit stays synchronous.
+  writeAll(1, (typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2)) + '\n');
+  C.close();
+  process.exit(code || 0);
+}
+
+function writeAll(fd, text) {
+  const buf = Buffer.from(text);
+  let off = 0;
+  while (off < buf.length) {
+    try {
+      off += fs.writeSync(fd, buf, off, buf.length - off);
+    } catch (e) {
+      if (e.code !== 'EAGAIN') throw e;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 5); // pipe full: let the reader drain
+    }
+  }
+}
+
+function fail(msg, code) {
+  process.stderr.write('jobctl: ' + msg + '\n');
+  C.close();
+  process.exit(code || 1);
+}
+
+const { exitCode, parse } = require('../lib/followup');
+
+/** --no-submit / --submit for a resumed run (undefined: keep the run's own setting). */
+function noSubmitFlag(flags) {
+  return flags['no-submit'] ? true : flags.submit ? false : undefined;
+}
+
+/**
+ * Print what answer / answer-batch / code did. With --continue, and only when everything went in, resume the
+ * same run in this process (as `jobctl continue` would) and print one object { answered, run } that exits with
+ * the run status's code; a failed answer prints { answered, continued: false, reason } and exits 1.
+ */
+async function finish(output, flags, runId, plainCode) {
+  if (!flags.continue) out(flags.json || flags.full ? output : require('../lib/runtext').answerText(require('../lib/brief').briefAnswer(output)), plainCode);
+  const F = require('../lib/followup');
+  const report = F.answered(output).ok ? await require('../lib/apply').resume(runId, { noSubmit: noSubmitFlag(flags) }) : null;
+  const { json, code } = F.combine(output, report);
+  emitRun(json, code, flags);
+}
+
+/** A run from its id, or null: a batch item whose run cannot be read is still reported. */
+function loadRun(id) {
+  try {
+    return require('../lib/runs').load(id);
+  } catch (e) {
+    return null;
+  }
+}
+
+/** The tracker row for a run: the {docId, data} `jobctl row` prints, without its own location lookup. */
+function rowOf(run, opts) {
+  const D = require('../lib/data');
+  const d = new Date();
+  const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const row = require('../lib/tracker').trackerRow(run, D.profile(), today, opts || {});
+  if (!row.data.location) row.warning = 'no location: pass --location "City, ST" (read it from the posting)';
+  return row;
+}
+
+/**
+ * A run ended (submitted, closed, already applied, dropped): its queued posting is marked done (lib/queue.js), and a
+ * submitted run gets its tracker row attached, so /apply writes the row without a second call. `rep` is a run report
+ * ({status, run: id, url}) or a batch item; the full run record supplies the posting URL and the location.
+ */
+function settleAndRow(rep) {
+  const full = typeof rep.run === 'string' ? loadRun(rep.run) : null;
+  // The run already happened: a queue or row problem is reported, never allowed to lose the command's output.
+  try {
+    require('../lib/queue').settle(full || rep);
+  } catch (e) {
+    process.stderr.write('jobctl: queue not updated: ' + e.message + '\n');
+  }
+  if (full && rep.status === 'submitted') {
+    try {
+      rep.row = rowOf(full);
+    } catch (e) {
+      rep.row = { warning: 'tracker row not built: ' + e.message };
+    }
+  }
+  return rep;
+}
+
+/**
+ * Print what a run did (apply, continue, batch, --continue): settle and row as above, then the compact report,
+ * or the full one with --full. `res` is a report or the {answered, run} / {answered, continued:false} of --continue.
+ */
+function emitRun(res, code, flags) {
+  const rep = res && res.run && typeof res.run === 'object' ? res.run : res;
+  if (rep && rep.status) settleAndRow(rep);
+  // Text by default: one line per need with its exact options (lib/runtext.js); --json: the compact JSON; --full: all.
+  const B = require('../lib/brief');
+  out(flags && flags.full ? res : flags && flags.json ? B.briefReport(res) : require('../lib/runtext').reportText(B.briefReport(res)), code);
+}
+
+/** A submitted application for the same posting (same URL without query/hash, or same apply URL). */
+function duplicate(url) {
+  const U = require('../lib/urls');
+  const D = require('../lib/data');
+  const key = U.postingKey;
+  const k = key(url);
+  return D.applied().reverse().find((a) => key(a.url) === k || (a.finalUrl && key(a.finalUrl) === k)) || null;
+}
+
+// Hand fixes on a run: logged to data/hiccups.jsonl before they run (lib/hiccups.js), so recurring
+// hand work shows up in `jobctl session report`. answer-batch logs one entry per answer itself.
+const MANUAL = new Set(['click', 'press', 'set', 'answer', 'upload', 'options', 'goto', 'drop']);
+
+function logManual(cmd, args, flags) {
+  if (cmd === 'drop' ? !args[0] : flags.tab) return;
+  let run = null;
+  try {
+    run = require('../lib/runs').load(cmd === 'drop' ? args[0] : flags.run || 'last');
+  } catch (e) {
+    /* no run: still log the command */
+  }
+  const ref = /^\d+:\d+$|^\d+$/.test(args[0] || '') ? args[0] : null;
+  const detail = cmd === 'drop' ? args.slice(1).join(' ') : cmd === 'upload' ? args[0] : cmd === 'goto' ? 'goto' : null;
+  require('../lib/hiccups').manual(cmd, run, { ref, detail });
+}
+
+async function currentTab(flags, readOnly, usesRef) {
+  const F = require('../lib/focus');
+  if (flags.tab) {
+    const tabId = Number(flags.tab);
+    const why = usesRef && F.refMismatch(tabId, F.lastSnap());
+    if (why) throw new Error(why);
+    return tabId;
+  }
+  const R = require('../lib/runs');
+  let runTab = null;
+  try {
+    runTab = R.load(flags.run || 'last').tabId;
+  } catch (e) {
+    /* no run: the active tab */
+  }
+  // --run > the tab opened / driven last (lib/focus.js) > the last run's tab > the active tab.
+  const pick = F.pickTarget({ flagRun: flags.run, runTab, focused: F.focus(), tabs: await C.send('tabs') });
+  if (pick.tabId == null) throw new Error('no tab');
+  // A ref names a field of the tab it was read on: never press it on another tab (Fernhaven 2026-10-09, lib/focus.js).
+  const why = usesRef && !pick.fallback && F.refMismatch(pick.tabId, F.lastSnap());
+  if (why) throw new Error(why);
+  // Only reads fall back: a set / upload / code meant for the run's page must never land on another tab.
+  if (pick.fallback && !flags.run && readOnly) process.stderr.write(`jobctl: the last run's tab ${runTab} is closed; using tab ${pick.tabId}\n`);
+  else if (pick.fallback) throw new Error(`run ${flags.run || "last"}'s tab ${runTab} is closed: jobctl continue reopens it, or pass --tab N (see jobctl tabs)`);
+  return pick.tabId;
+}
+
+/** Fill one field a run asked about; save reusable answers to the bank ({company}-templated). */
+async function answerOne(run, refArg, value, save, needAs) {
+  const A = require('../lib/apply');
+  const D = require('../lib/data');
+  const { frameId, ref } = A.splitRef(refArg);
+  const res = await A.call(run.tabId, frameId, 'set', { ref, value, autoConsent: D.profile().policy.autoConsent }, 30000);
+  const need = needAs || (run.needs || []).find((n) => n.ref === refArg); // needAs: a stale ref's need, re-resolved by label
+  let savedAs = null;
+  let warning;
+  // Remember the owner's hand answer on the run: the engine still calls it "nomatch" on the next pass and the
+  // driver would ask again while the page holds it (AmFam "previously employed", 2026-10-09).
+  if (res && res.ok && need && need.label) {
+    run.handAnswers = { ...(run.handAnswers || {}), [need.label]: value };
+    require('../lib/runs').save(run);
+  }
+  if (res && res.ok && save && need && need.label && need.kind !== 'file' && !need.consent && need.type !== 'review') {
+    const e = D.saveAnswer(need.label, value, need.section, run.company);
+    savedAs = e.question;
+    warning = e.warning;
+  }
+  return { ...(res || { ok: false }), savedAs, warning };
+}
+
+/**
+ * A Handshake job link -> where the application happens (lib/handshake.js forApply): the employer's ATS link, or
+ * the Handshake page itself for native applies, with company / role / location from Handshake. Other links pass
+ * through. A posting Handshake cannot route (careers home page, email) fails with what to do instead.
+ */
+async function handshakeTarget(url, flags) {
+  const H = require('../lib/handshake');
+  if (!H.isHandshake(url)) return { url };
+  const t = await H.forApply(url);
+  if (!t.url) fail(t.message);
+  if (t.url !== url) process.stderr.write(`jobctl: Handshake job ${t.handshake.jobId} applies at ${t.url}\n`);
+  return t;
+}
+
+/* ------------------------------------------------------------------ */
+
+const cmds = {
+  help: () => out(HELP),
+
+  install() {
+    const wrapper = path.join(P.ROOT, 'host', 'jobbot-host.sh');
+    fs.writeFileSync(wrapper, `#!/bin/sh\n# Started by Firefox (native messaging). Absolute node path: Firefox's PATH may be minimal.\nexec ${process.execPath} "${path.join(P.ROOT, 'host', 'jobbot-host.js')}" "$@"\n`, { mode: 0o755 });
+    const manifest = {
+      name: 'jobbot',
+      description: 'jobbot native host: relays jobctl commands to the jobbot extension',
+      path: wrapper,
+      type: 'stdio',
+      allowed_extensions: ['jobbot-agent@local'],
+    };
+    // Firefox 147+ on Linux reads the XDG location; the legacy ~/.mozilla one only if
+    // ~/.mozilla already exists (creating it could move Firefox's profile root).
+    const dirs = [path.join(process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'), 'mozilla', 'native-messaging-hosts')];
+    if (fs.existsSync(path.join(os.homedir(), '.mozilla'))) dirs.push(path.join(os.homedir(), '.mozilla', 'native-messaging-hosts'));
+    for (const d of dirs) {
+      fs.mkdirSync(d, { recursive: true });
+      fs.writeFileSync(path.join(d, 'jobbot.json'), JSON.stringify(manifest, null, 2) + '\n');
+    }
+    out({ ok: true, host: wrapper, manifests: dirs.map((d) => path.join(d, 'jobbot.json')) });
+  },
+
+  browser({ args }) {
+    const pidFile = path.join(P.DATA, 'browser.pid');
+    if (args[0] === 'stop') {
+      try {
+        const pid = Number(fs.readFileSync(pidFile, 'utf8'));
+        process.kill(-pid, 'SIGTERM');
+        fs.unlinkSync(pidFile);
+        return out({ ok: true, stopped: pid });
+      } catch (e) {
+        return out({ ok: false, error: 'not running (' + e.message + ')' });
+      }
+    }
+    fs.mkdirSync(P.LOG_DIR, { recursive: true });
+    const log = fs.openSync(path.join(P.LOG_DIR, 'browser.log'), 'a');
+    const webext = spawnSync('which', ['web-ext'], { encoding: 'utf8' }).stdout.trim() || path.join(os.homedir(), '.npm-global', 'bin', 'web-ext');
+    const child = spawn(
+      webext,
+      [
+        'run',
+        '--source-dir', P.EXTENSION,
+        '--firefox-profile', P.FIREFOX_PROFILE,
+        '--profile-create-if-missing',
+        '--keep-profile-changes',
+        '--no-reload',
+        '--start-url', 'about:blank',
+        // Quiet, lean profile: no session restore prompts, fewer content processes (8 GB machine).
+        '--pref', 'browser.sessionstore.resume_from_crash=false',
+        '--pref', 'dom.ipc.processCount=4',
+        // Tab-group lanes (lib/lanes.js): red NEEDS YOU / green JOBBOT WORKING / grey DONE.
+        '--pref', 'browser.tabs.groups.enabled=true',
+        '--pref', 'browser.shell.checkDefaultBrowser=false',
+        '--pref', 'datareporting.policy.dataSubmissionEnabled=false',
+        '--pref', 'signon.rememberSignons=false',
+        // Extension console output into data/logs/browser.log (debugging the agent).
+        '--pref', 'devtools.console.stdout.chrome=true',
+        '--pref', 'devtools.console.stdout.content=true',
+        '--verbose',
+      ],
+      { detached: true, stdio: ['ignore', log, log] }
+    );
+    child.unref();
+    fs.writeFileSync(pidFile, String(child.pid));
+    out({ ok: true, pid: child.pid, profile: P.FIREFOX_PROFILE, log: path.join(P.LOG_DIR, 'browser.log'), note: 'wait ~10 s, then `jobctl doctor`' });
+  },
+
+  async doctor() {
+    const checks = {};
+    const manifest = path.join(process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'), 'mozilla', 'native-messaging-hosts', 'jobbot.json');
+    checks.nativeHost = fs.existsSync(manifest) ? 'installed' : 'missing: run `jobctl install`';
+    checks.profile = fs.existsSync(P.PROFILE) ? 'ok' : 'missing data/profile.json';
+    const D = require('../lib/data');
+    checks.answers = D.answers().entries.length + ' saved answers';
+    const p = fs.existsSync(P.PROFILE) ? D.profile() : null;
+    if (p) {
+      const resume = path.join(P.ROOT, p.documents.resume);
+      checks.resume = fs.existsSync(resume) ? p.documents.resume : 'missing ' + p.documents.resume;
+      checks.policy = p.policy;
+    }
+    checks.keyring = require('../lib/secrets').available() ? 'secret-tool ok' : 'secret-tool missing';
+    try {
+      checks.browser = await C.send('ping', {}, 5000);
+    } catch (e) {
+      checks.browser = 'not connected: ' + e.message;
+    }
+    out(checks);
+  },
+
+  async reload() {
+    await C.send('reload', {}, 5000);
+    C.close();
+    for (let i = 0; i < 30; i++) {
+      await new Promise((r) => setTimeout(r, 1000));
+      try {
+        return out({ ok: true, browser: await C.send('ping', {}, 3000) });
+      } catch (e) {
+        C.close();
+      }
+    }
+    fail('extension did not come back after reload; try `jobctl browser stop` then `jobctl browser`');
+  },
+
+  async discover({ flags }) {
+    const X = require('../lib/discover');
+    const o = { role: flags.role, city: flags.city, anywhere: !!flags.anywhere, all: !!flags.all, maxAge: flags['max-age'], noDetail: !!flags['no-detail'], simplify: !flags['no-simplify'], handshake: !flags['no-handshake'], partTime: !!flags['part-time'] };
+    const res = flags.new ? await X.discoverNew(o) : await X.discover(o);
+    if (flags.notify && res.count) {
+      // Daily timer (~/.config/systemd/user/jobbot-discover.timer): tell the owner, apply nothing.
+      const top = res.postings.slice(0, 3).map((p) => `${p.company}: ${p.title}`).join('; ');
+      spawnSync('notify-send', ['-a', 'jobbot', `jobbot: ${res.count} new internship${res.count > 1 ? 's' : ''}`, `${top}. Open Claude and say "show my new jobs".`]);
+    }
+    if (flags.brief) return out(require('../lib/brief').discoverText(res));
+    out(res);
+  },
+
+  /** Handshake only (EXU's board, through the logged-in jobbot Firefox): discover's filters and output. */
+  async handshake({ flags }) {
+    const X = require('../lib/discover');
+    const o = { query: typeof flags.query === 'string' ? flags.query.split(',').map((q) => q.trim()).filter(Boolean) : undefined, role: flags.role, city: flags.city, anywhere: !!flags.anywhere, all: !!flags.all, maxAge: flags['max-age'], boards: false, simplify: false, handshake: true, partTime: !!flags['part-time'] };
+    const res = await X.discover(o);
+    if (res.handshake.error) return out(flags.brief ? `Handshake: ${res.handshake.error}` : res, res.handshake.loggedOut ? 11 : 1);
+    if (flags.brief) return out(require('../lib/brief').discoverText(res));
+    out(res);
+  },
+
+  async posting({ args, flags }) {
+    if (!args[0]) fail('usage: jobctl posting <url> [--text]');
+    // A Handshake link: read it from Handshake (logged-in tab), then the employer's ATS API when it applies there.
+    const H = require('../lib/handshake');
+    if (H.isHandshake(args[0])) {
+      const j = await H.job(args[0]);
+      const viaAts = j.applyVia === 'external' ? await require('../lib/posting').posting(j.url).catch(() => null) : null;
+      const r = viaAts ? { ...viaAts, handshake: { jobId: j.jobId, url: j.handshakeUrl, applyVia: j.applyVia } } : { ats: 'handshake', company: j.company, title: j.title, location: j.location, ageDays: null, payPerHour: null, flags: j.flags, apply: j.url, applyVia: j.applyVia, documents: j.documents, screeningQuestions: j.screeningQuestions, find: j.find, externalUrl: j.externalUrl, text: j.text };
+      if (!flags.text) r.text = String(r.text || '').slice(0, 1500) + (String(r.text || '').length > 1500 ? ' …' : '');
+      return out(r);
+    }
+    const r = await require('../lib/posting').posting(args[0]);
+    if (!flags.text) r.text = r.text.slice(0, 1500) + (r.text.length > 1500 ? ' …' : '');
+    out(r);
+  },
+
+  async row({ args, flags }) {
+    // The tracker row for a submitted run, location included (owner, 2026-10-08): /apply writes it as is.
+    const R = require('../lib/runs');
+    const run = R.load(args[0] || 'last');
+    if (!run.location && !flags.location) {
+      try {
+        run.location = require('../lib/location').normLocation((await require('../lib/posting').posting(run.postingUrl || run.url)).location);
+      } catch (e) {
+        /* no posting API for this ATS: pass --location */
+      }
+    }
+    // A location / req id given here is kept on the run, so `jobctl rows --unlogged` carries it too (2026-10-09: the
+    // Hollowridge and Flinthall rows came back without the location set here).
+    if (flags.location) run.location = require('../lib/location').normLocation(flags.location);
+    if (flags.req) run.reqId = flags.req;
+    if (run.location || flags.req) R.save(run);
+    out({ run: run.id, status: run.status, ...rowOf(run, { location: flags.location, reqId: flags.req }) });
+  },
+
+  /** Tracker rows for submitted runs: --unlogged lists the ones not written yet; --logged marks them. */
+  rows({ args, flags }) {
+    const Q = require('../lib/queue');
+    // One line of JSON: this list is fed straight into an ArtifactData batch, not read by eye.
+    if (flags.unlogged) return out(JSON.stringify(Q.unlogged().map((r) => ({ run: r.id, ...rowOf(r) }))));
+    if (flags.logged) {
+      if (!args.length) fail('usage: jobctl rows --logged <run...|all>');
+      return out(Q.markLogged(args));
+    }
+    fail('usage: jobctl rows --unlogged | --logged <run...|all>');
+  },
+
+  /** The queue of postings to apply to next (data/queue.json). */
+  queue({ args, flags }) {
+    const Q = require('../lib/queue');
+    const B = require('../lib/brief');
+    const sub = args[0] || 'list';
+    if (sub === 'list') {
+      const c = Q.counts();
+      const shown = flags.all ? Q.list() : Q.list().filter((i) => i.status === 'pending');
+      return out([`queue: ${c.pending} pending, ${c.done} done${flags.all ? '' : ' (jobctl queue --all lists the done ones)'}`, ...shown.map(B.queueLine)].join('\n'));
+    }
+    if (sub === 'add') {
+      if (!args[1]) fail('usage: jobctl queue add <url> [--company C] [--role R] [--resume F] [--note N]');
+      const res = Q.add(args[1], { company: flags.company, role: flags.role, resume: flags.resume, note: flags.note });
+      return out(res.added ? 'added ' + B.queueLine(res.item) : res.message);
+    }
+    if (sub === 'rm') {
+      if (!args[1]) fail('usage: jobctl queue rm <url|n>');
+      return out('removed ' + B.queueLine(Q.rm(args[1])));
+    }
+    if (sub === 'next') {
+      const item = Q.next();
+      return item ? out(item) : out({ pending: 0, message: 'queue has no pending items' }, 1);
+    }
+    fail('usage: jobctl queue [--all] | add <url> [--company C] [--role R] [--resume F] [--note N] | rm <url|n> | next');
+  },
+
+  /** Run the tests through the shared lock (scripts/test.sh): `jobctl test`, `jobctl test all`, `jobctl test brief`. */
+  test({ args }) {
+    const r = spawnSync('bash', [path.join(P.ROOT, 'scripts', 'test.sh'), ...args], { stdio: 'inherit' });
+    C.close();
+    process.exit(r.status == null ? 1 : r.status);
+  },
+
+  'inbox-query'() {
+    const I = require('../lib/inbox');
+    out(I.buildQuery(I.readState()));
+  },
+
+  'inbox-plan'({ args }) {
+    if (args.length < 2) fail('usage: jobctl inbox-plan <emails.json> <rows.json|rows-dir>');
+    const I = require('../lib/inbox');
+    const emails = JSON.parse(fs.readFileSync(args[0], 'utf8'));
+    out(I.planAll(Array.isArray(emails) ? emails : emails.emails || [], I.loadRows(args[1])));
+  },
+
+  'inbox-done'() {
+    out(require('../lib/inbox').writeState());
+  },
+
+  async find({ args, flags }) {
+    if (args.length < 2) fail('usage: jobctl find "<company>" "<title>" [--city X] [--json]');
+    const r = await require('../lib/find').find(args[0], args.slice(1).join(' '), { city: typeof flags.city === 'string' ? flags.city : undefined });
+    if (flags.json) out(r, r.found ? 0 : 1);
+    const L = [];
+    if (!r.found) {
+      const wd = r.tried.filter((t) => /^workday:/.test(t));
+      L.push(r.message, 'tried:', ...r.tried.filter((t) => !/^workday:/.test(t)).map((t) => '  ' + t), ...(wd.length ? [`  workday: ${wd.length} tenant/site lookups (${wd.filter((t) => /postings\)/.test(t)).map((t) => t.replace(/ \(.*/, '')).join(', ') || 'no site found'})`] : []));
+      if (r.candidates.length) L.push('closest:', ...r.candidates.map((c) => `  ${c.score}  ${c.title} (${c.location}) ${c.url}`));
+    } else {
+      const b = r.best;
+      L.push(`FOUND (${r.confidence}, score ${b.score}): ${b.company}: ${b.title} (${b.location || 'no location'}) [${b.ats}]`, `apply: ${b.url}`);
+      if (r.boardsAdded && r.boardsAdded.length) L.push(`added to boards.json: ${r.boardsAdded.join(', ')}`);
+      if (r.posting) {
+        const p = r.posting;
+        L.push(`posting: age ${p.ageDays == null ? 'unknown' : p.ageDays + ' d'}${p.stale ? ' (STALE, older than 7 d)' : ''}, pay ${p.payPerHour ? `$${p.payPerHour.low}-${p.payPerHour.high}/hr` : 'not listed'}, flags ${JSON.stringify(p.flags)}`);
+      } else if (r.postingError) L.push(`posting read failed: ${r.postingError}`);
+      if (r.candidates.length) L.push('also:', ...r.candidates.map((c) => `  ${c.score}  ${c.title} (${c.location}) ${c.url}`));
+      L.push(`searched ${r.tried.length} board lookups`);
+    }
+    out(L.join('\n'), r.found ? 0 : 1);
+  },
+
+  async tailor({ args, flags }) {
+    const r = await require('../lib/tailor').cli({ args, flags }); // --build / --check live in lib/tailor.js
+    out(r.out, r.code);
+  },
+
+  async jd({ args }) {
+    if (!args[0]) fail('usage: jobctl jd <url>');
+    const A = require('../lib/apply');
+    const tab = await C.send('open', { url: args[0], active: false });
+    try {
+      await A.settle(tab.tabId);
+      const snap = await A.snapshot(tab.tabId, { text: true, textMax: 25000 });
+      out({ url: snap.url, title: snap.title, heading: snap.heading, adapter: snap.adapter, page: A.classify(snap), apply: (A.findApply(snap) || {}).text || null, text: snap.text });
+    } finally {
+      await C.send('close', { tabId: tab.tabId }).catch(() => {});
+    }
+  },
+
+  async apply({ args, flags }) {
+    if (!args[0]) fail('usage: jobctl apply <url> [--resume F] [--no-submit]');
+    const A = require('../lib/apply');
+    const hs = await handshakeTarget(args[0], flags);
+    const url = hs.url;
+    const dup = duplicate(url);
+    if (dup && !flags.force) return emitRun({ status: 'already_applied', url, message: `already submitted on ${dup.at.slice(0, 10)} (run ${dup.run}); add --force to apply again`, previous: dup }, 0, flags);
+    const res = await A.start(url, { resume: flags.resume, cover: flags.cover, transcript: flags.transcript, company: flags.company || hs.company, role: flags.role || hs.role, location: flags.location || hs.location, noSubmit: !!flags['no-submit'], dry: !!flags.dry });
+    emitRun(res, exitCode(res.status), flags);
+  },
+
+  async batch({ args, flags }) {
+    const A = require('../lib/apply');
+    let urls = args;
+    if (args.length === 1 && fs.existsSync(args[0])) urls = fs.readFileSync(args[0], 'utf8').split(/\s+/).filter((u) => /^https?:/.test(u));
+    if (!urls.length) fail('usage: jobctl batch <file with one link per line | url url ...>');
+    const results = [];
+    const H = require('../lib/handshake');
+    for (const link of urls) {
+      // Handshake links: the employer's ATS link or the native Handshake page (see handshakeTarget).
+      let url = link;
+      let hs = {};
+      if (H.isHandshake(link)) {
+        try {
+          hs = await H.forApply(link);
+        } catch (e) {
+          hs = { message: e.message };
+        }
+        if (!hs.url) {
+          results.push({ url: link, status: 'error', message: hs.message });
+          continue;
+        }
+        url = hs.url;
+      }
+      const dup = duplicate(url);
+      if (dup && !flags.force) {
+        results.push(settleAndRow({ url, status: 'already_applied', run: dup.run }));
+        continue;
+      }
+      try {
+        const r = await A.start(url, { noSubmit: !!flags['no-submit'], company: hs.company, role: hs.role, location: hs.location });
+        results.push(settleAndRow({ url, status: r.status, run: r.run, company: r.company, role: r.role, message: r.message, needs: r.needs && r.needs.length ? r.needs.length : undefined }));
+      } catch (err) {
+        results.push({ url, status: 'error', message: err.message });
+        if (/not connected/.test(err.message)) break;
+      }
+    }
+    const count = {};
+    results.forEach((r) => (count[r.status] = (count[r.status] || 0) + 1));
+    const payload = { count, results };
+    out(flags.full ? payload : flags.json ? require('../lib/brief').briefReport(payload) : require('../lib/runtext').reportText(require('../lib/brief').briefReport(payload)), results.some((r) => r.status !== 'submitted' && r.status !== 'already_applied' && r.status !== 'closed') ? 10 : 0);
+  },
+
+  async continue({ args, flags }) {
+    const A = require('../lib/apply');
+    const res = await A.resume(args[0] || flags.run || 'last', { noSubmit: noSubmitFlag(flags), owner: !!flags.owner });
+    emitRun(res, exitCode(res.status), flags);
+  },
+
+  async answer({ args, flags }) {
+    if (args.length < 2) fail('usage: jobctl answer <ref> <value> [--run R] [--no-save] [--continue]');
+    const R = require('../lib/runs');
+    const run = R.load(flags.run || 'last');
+    const res = await answerOne(run, args[0], args.slice(1).join(' '), !flags['no-save']);
+    await finish(res, flags, run.id, res.ok ? 0 : 1);
+  },
+
+  /** Many answers in one go: JSON [{ "ref": "0:12", "value": "Yes", "save": true }] from a file or stdin. */
+  async 'answer-batch'({ args, flags }) {
+    const R = require('../lib/runs');
+    const run = R.load(flags.run || 'last');
+    const raw = args[0] && args[0] !== '-' ? fs.readFileSync(args[0], 'utf8') : fs.readFileSync(0, 'utf8');
+    const items = JSON.parse(raw);
+    const results = [];
+    const H = require('../lib/hiccups');
+    for (const it of items) H.manual('answer', run, { ref: it.ref });
+    for (const it of items) {
+      let r = await answerOne(run, it.ref, String(it.value), it.save !== false).catch((e) => ({ ok: false, error: e.message }));
+      // A ref that went stale (the page re-rendered after an earlier answer, e.g. Oracle address autocomplete): find
+      // the need's field again by its label in a fresh snapshot and answer it once there.
+      const need = !r.ok && C.STALE.test(r.error || '') ? (run.needs || []).find((n) => n.ref === it.ref) : null;
+      const hit = need ? C.relabel((await require('../lib/apply').snapshot(run.tabId).catch(() => ({ fields: [] }))).fields, need) : null;
+      if (hit) r = { ...(await answerOne(run, hit.ref, String(it.value), it.save !== false, need).catch((e) => ({ ok: false, error: e.message }))), note: `ref ${it.ref} was stale: answered ${hit.ref} (same label)` };
+      results.push({ ref: it.ref, ...r });
+    }
+    const failed = results.filter((r) => !r.ok);
+    const res = { ok: !failed.length, answered: results.length - failed.length, failed, warnings: results.filter((r) => r.warning).map((r) => ({ ref: r.ref, warning: r.warning })) };
+    await finish(res, flags, run.id, failed.length ? 1 : 0);
+  },
+
+  remember({ args, flags }) {
+    if (args.length < 2) fail('usage: jobctl remember "<question>" "<answer>" [--company C]');
+    const D = require('../lib/data');
+    out(D.saveAnswer(args[0], args.slice(1).join(' '), '', flags.company));
+  },
+
+  forget({ args }) {
+    if (!args.length) fail('usage: jobctl forget <id> [id...]   (ids from `jobctl review-answers`)');
+    const gone = require('../lib/data').forgetAnswers(args);
+    out({ removed: gone.map((e) => ({ id: e.id, q: e.question })) }, gone.length ? 0 : 1);
+  },
+
+  /** Log a hiccup by hand, or close a cluster: jobctl hiccup --resolve <key> "<what fixed it>". */
+  hiccup({ args, flags }) {
+    const H = require('../lib/hiccups');
+    if (flags.resolve) {
+      const key = flags.resolve === true ? args.shift() : flags.resolve;
+      if (!key) fail('usage: jobctl hiccup --resolve <key> "<what fixed it>"');
+      return out(H.resolve(key, args.join(' ')));
+    }
+    if (!args.length) fail('usage: jobctl hiccup "<what happened>" [--kind ' + H.KINDS.join('|') + '] [--topic T] [--ats A] [--company C] [--fix "idea"]');
+    let run = null;
+    try {
+      if (flags.run) run = require('../lib/runs').load(flags.run);
+    } catch (e) {
+      /* keep null */
+    }
+    out(H.log({ kind: flags.kind || 'other', detail: args.join(' '), ats: flags.ats || (run && run.ats) || undefined, company: flags.company || (run && run.company) || undefined, run: run ? run.id : undefined, fix: flags.fix || undefined, topic: flags.topic || undefined }));
+  },
+
+  /** jobctl session start [--brief] | report [--days N] [--save] */
+  session({ args, flags }) {
+    const H = require('../lib/hiccups');
+    const sub = args[0] || 'report';
+    if (sub === 'start') {
+      const res = H.start();
+      if (!flags.brief) return out(res);
+      // SessionStart hook: at most 12 lines (lib/brief.js sessionBrief).
+      const Q = require('../lib/queue');
+      const B = require('../lib/brief');
+      return console.log(B.sessionBrief({ session: res.session, open: res.open.slice(0, 3), queueOpen: Q.counts().pending, unlogged: Q.unlogged().length, trend: H.scorecards(3) }));
+    }
+    if (sub === 'report') {
+      const rep = H.report({ days: flags.days ? Number(flags.days) : undefined });
+      if (flags.save) {
+        rep.file = H.save(rep);
+        // One scorecard line per session (upserted): the trend the session start shows.
+        const sc = H.scorecard();
+        H.saveScorecard(sc);
+        rep.scorecard = require('../lib/brief').scorecardLine(sc);
+      }
+      if (flags.md) return console.log(H.markdown(rep));
+      return out(rep);
+    }
+    fail('usage: jobctl session start [--brief] | report [--days N] [--save] [--md]');
+  },
+
+  friction({ flags }) {
+    out(require('../lib/friction').report(Number(flags.days || 30)));
+  },
+
+  'review-answers'({ flags }) {
+    out(require('../lib/review').report(flags.json ? 'json' : 'text'));
+  },
+
+  answers({ args, flags }) {
+    const D = require('../lib/data');
+    const term = (args[0] || '').toLowerCase();
+    // No search word: the counts by topic, not the whole bank (it is long; --all lists it).
+    if (!term && !flags.all) return out(require('../lib/brief').answersText(require('../lib/brief').answersSummary(D.answers().entries)));
+    out(D.answers().entries.filter((e) => !term || e.question.includes(term) || String(e.answer).toLowerCase().includes(term)).map((e) => ({ q: e.question, a: e.answer, sensitive: e.sensitive || undefined })));
+  },
+
+  status({ args, flags }) {
+    const R = require('../lib/runs');
+    // One run: its report as text, every need with its options (2026-10-09: sessions piped status into a parser).
+    if (args[0]) return out(flags.json ? require('../lib/brief').briefRun(R.load(args[0])) : require('../lib/runtext').runText(require('../lib/brief').briefRun(R.load(args[0]))));
+    const ids = R.list().slice(-Number(flags.n || 15)).reverse();
+    const age = (t) => {
+      const m = Math.round((Date.now() - Date.parse(t)) / 60000);
+      return m < 60 ? `${m}m` : m < 1440 ? `${Math.round(m / 60)}h` : `${Math.round(m / 1440)}d`;
+    };
+    const ICON = { dropped: 'DROP', submitted: 'OK  ', already_applied: 'DUP ', closed: 'GONE', needs_input: 'NEED', needs_review: 'LOOK', blocked: 'BLOK', ready_to_submit: 'DRY ', new: '... ' };
+    const lines = [];
+    for (const id of ids) {
+      let r;
+      try {
+        r = R.load(id);
+      } catch (e) {
+        continue;
+      }
+      if (r.dry && !flags.dry) continue; // test runs only with --dry
+      const who = `${r.company || new URL(r.url).hostname}${r.role ? ' - ' + r.role : ''}`.slice(0, 70);
+      lines.push(`${ICON[r.status] || r.status.padEnd(4)} ${age(r.updated || r.created).padStart(4)}  ${who}${r.dry ? '  (dry)' : ''}`);
+      if (R.WAITING.includes(r.status) && !R.isOpen(r)) {
+        lines[lines.length - 1] = lines[lines.length - 1].replace(/^\S+\s/, 'DONE ') + '  (submitted in a later run)';
+        continue;
+      }
+      if (R.WAITING.includes(r.status)) {
+        const needs = (r.needs || []).filter((n) => n.type !== 'review');
+        lines.push(`           ${r.message}`);
+        for (const l of require('../lib/runtext').statusNeedLines(r.needs, r.id)) lines.push(`           ${l}`); // every need (was the first 4)
+        lines.push(`           run ${r.id}${r.stopShot ? '  shot ' + r.stopShot : ''}`);
+      }
+    }
+    out(lines.length ? lines.join('\n') : 'no runs yet');
+  },
+
+  runs() {
+    const R = require('../lib/runs');
+    out(R.list().slice(-20).map((id) => {
+      const r = R.load(id);
+      return { id, status: r.status, company: r.company, role: r.role, url: r.url, message: r.message };
+    }));
+  },
+
+  show({ args }) {
+    out(require('../lib/runs').load(args[0] || 'last'));
+  },
+
+  log({ flags }) {
+    const B = require('../lib/brief');
+    const apps = require('../lib/data').applied();
+    if (flags.all || flags.json) return out(apps);
+    const last = apps.slice(-10);
+    out([`${apps.length} submitted (last ${last.length}; jobctl log --all for every one)`, ...last.map(B.logLine)].join('\n'));
+  },
+
+  async snap({ flags }) {
+    const A = require('../lib/apply');
+    const tabId = await currentTab(flags, true);
+    const s = await A.snapshot(tabId, { text: !!flags.text });
+    delete s.frames;
+    if (flags.brief) return out(require('../lib/brief').snapText({ tabId, page: A.classify(s), nav: (A.findNav(s) || {}).btn || null, ...s }));
+    out({ tabId, page: A.classify(s), nav: (A.findNav(s) || {}).btn || null, ...s });
+  },
+
+  async set({ args, flags }) {
+    const A = require('../lib/apply');
+    const D = require('../lib/data');
+    const { frameId, ref } = A.splitRef(args[0]);
+    out(await A.call(await currentTab(flags, false, true), frameId, 'set', { ref, value: args.slice(1).join(' '), autoConsent: D.profile().policy.autoConsent }, 30000));
+  },
+
+  async code({ args, flags }) {
+    // An emailed code, typed into its box(es) in one call: one character per box when the site splits it.
+    if (!args[0]) fail('usage: jobctl code <code> [--continue]');
+    const A = require('../lib/apply');
+    const tab = await currentTab(flags);
+    const snap = await A.snapshot(tab);
+    const plan = require('../lib/code').codeBoxes(snap.fields, args[0]);
+    if (!plan.length) fail('no code box on the page (or fewer boxes than characters): use jobctl set');
+    let ok = 0;
+    for (const b of plan) {
+      const { frameId, ref } = A.splitRef(b.ref);
+      const r = await A.call(tab, frameId, 'set', { ref, value: b.value }, 30000).catch(() => null);
+      if (r && r.ok) ok++;
+    }
+    await finish({ ok: ok === plan.length, boxes: plan.length, filled: ok }, flags, flags.run || 'last', 0);
+  },
+
+  async click({ args, flags }) {
+    const A = require('../lib/apply');
+    const R = require('../lib/runs');
+    let run;
+    try {
+      run = R.load(flags.run || 'last');
+    } catch (e) {
+      run = { tabId: null };
+    }
+    // The tab the ref was read on (lib/focus.js): --tab, else focus / the run's tab, refused on a mismatch.
+    // Another tab than the run's is clicked on its own: the run keeps its tab id.
+    const tabId = await currentTab(flags, false, true);
+    const who = run.id && run.tabId === tabId ? run : { tabId, steps: [] };
+    const res = await A.click(who, args[0]);
+    if (who === run && run.id) R.save(run);
+    out(res);
+  },
+
+  // Click an element no snapshot lists (script links like EA's "Forgot your password?", 2026-10-09).
+  async press({ args, flags }) {
+    if (!args[0]) fail('usage: jobctl press <css selector> [--tab N | --run R] [--frame F]');
+    const res = await C.page(await currentTab(flags), 'pressSelector', { selector: args[0] }, [Number(flags.frame || 0)], 30000);
+    out(res[0] ? res[0].result || { error: res[0].error } : { error: 'no frame' });
+  },
+
+  // Fields inside shadow roots (web-component forms: SmartRecruiters oneclick-ui) that snap cannot list.
+  async deep({ args, flags }) {
+    const tab = await currentTab(flags);
+    const frame = [Number(flags.frame || 0)];
+    const res = flags.text
+      ? await C.page(tab, 'deepText', {}, frame, 30000)
+      : flags.html
+      ? await C.page(tab, 'deepHtml', { pattern: args[0], up: flags.up || 4 }, frame, 30000)
+      : flags.pick
+      ? await C.page(tab, 'deepPick', { question: args[0], option: args[1] || '.', box: !!flags.box }, frame, 30000)
+      : args.length
+      ? await C.page(tab, 'deepType', /^\d+$/.test(args[0]) ? { i: args[0], value: args.slice(1).join(' ') } : { label: args[0], value: args.slice(1).join(' ') }, frame, 30000)
+      : await C.page(tab, 'deepFields', {}, frame, 30000);
+    out(res[0] ? res[0].result || { error: res[0].error } : { error: 'no frame' });
+  },
+
+  async capture({ args, flags }) {
+    if (!args[0]) fail('usage: jobctl capture <file.html>');
+    const res = await C.page(await currentTab(flags, true), 'capture', {}, [Number(flags.frame || 0)], 60000);
+    if (!res[0] || res[0].error) fail('capture failed: ' + ((res[0] && res[0].error) || 'no frame'));
+    fs.writeFileSync(args[0], res[0].result);
+    out({ file: args[0], bytes: res[0].result.length });
+  },
+
+  async html({ args, flags }) {
+    const A = require('../lib/apply');
+    const { frameId, ref } = A.splitRef(args[0]);
+    out(await A.call(await currentTab(flags, true, true), frameId, 'html', { ref, up: Number(flags.up || 0), max: Number(flags.max || 4000) }));
+  },
+
+  async options({ args, flags }) {
+    const A = require('../lib/apply');
+    const tab = await currentTab(flags, false, true);
+    const query = args.slice(1).join(' ') || undefined;
+    const ask = (r) => A.call(tab, A.splitRef(r).frameId, 'options', { ref: A.splitRef(r).ref, query }, 30000);
+    try {
+      return out(await ask(args[0]));
+    } catch (e) {
+      if (!C.STALE.test(e.message)) throw e;
+      // Stale ref: the run's need for it, found again by label in a fresh snapshot (once).
+      let need = null;
+      try {
+        need = (require('../lib/runs').load(flags.run || 'last').needs || []).find((n) => n.ref === args[0]);
+      } catch (err) {
+        /* no run */
+      }
+      const hit = need ? C.relabel((await A.snapshot(tab)).fields, need) : null;
+      if (!hit) throw e;
+      out({ ...(await ask(hit.ref)), note: `ref ${args[0]} was stale: these are ${hit.ref}'s options (same label); answer with ${hit.ref}` });
+    }
+  },
+
+  async upload({ args, flags }) {
+    const A = require('../lib/apply');
+    const which0 = ['resume', 'cover', 'transcript'].includes(args[0]);
+    const tabId = await currentTab(flags, false, !which0);
+    const which = ['resume', 'cover', 'transcript'].includes(args[0]) ? args[0] : 'resume';
+    const target = which === args[0] ? null : A.splitRef(args[0]);
+    out(await A.upload({ tabId }, target ? target.frameId : 0, which, args[1], target ? target.ref : undefined));
+  },
+
+  async goto({ args, flags }) {
+    const R = require('../lib/runs');
+    const url = args[args.length - 1];
+    const tabId = await currentTab(flags);
+    const res = await C.send('goto', { tabId, url });
+    try {
+      const run = R.load(flags.run || 'last');
+      if (run.tabId === tabId) {
+        run.steps.push({ at: new Date().toISOString(), kind: 'goto', msg: url });
+        R.save(run);
+      }
+    } catch (e) {
+      /* no run */
+    }
+    out(res);
+  },
+
+  async open({ args }) {
+    const t = await C.send('open', { url: args[0], active: true });
+    require('../lib/focus').setFocus(t.tabId, 'open'); // the next snap / text / click means this tab
+    out(t);
+  },
+
+  async text({ flags }) {
+    const tabId = await currentTab(flags, true);
+    const res = await C.page(tabId, 'text', { max: 40000 }, [0]);
+    out(res[0] && res[0].result);
+  },
+
+  async shot({ args, flags }) {
+    const tabId = await currentTab(flags, true);
+    const data = await C.send('screenshot', { tabId, quality: 60 });
+    const file = args[0] || path.join(P.DATA, 'logs', `shot-${Date.now()}.jpg`);
+    fs.writeFileSync(file, Buffer.from(data.replace(/^data:image\/\w+;base64,/, ''), 'base64'));
+    out({ file });
+  },
+
+  async drop({ args, flags }) {
+    const R = require('../lib/runs');
+    if (!args[0]) return out({ ok: false, error: 'usage: jobctl drop <run-id|last> [reason]' }, 1);
+    const run = R.drop(args[0], args.slice(1).join(' ') || flags.reason, !!flags.force);
+    require('../lib/apply').logFriction(run);
+    settleAndRow(run); // a dropped posting leaves the queue
+    if (run.tabId != null) await C.send('close', { tabId: run.tabId }).catch(() => {});
+    out({ ok: true, run: run.id, status: run.status, message: run.message });
+  },
+
+  async 'tabs-clean'() {
+    const R = require('../lib/runs');
+    const applied = require('../lib/data').applied();
+    const open = [];
+    for (const id of R.list().slice(-40)) {
+      try {
+        const r = R.load(id);
+        if (R.isOpen(r, applied)) open.push(r);
+      } catch (e) {
+        /* skip */
+      }
+    }
+    const tabs = await C.send('tabs');
+    // Tab ids restart with each browser launch: a run from an earlier session can name a tab id that now
+    // belongs to another page (2026-10-08: stale Cedarmere / Junipermere runs kept the TI and AMD tabs open).
+    // Keep a tab only when it is still on the run's site.
+    const keep = new Set(R.tabsInUse(open, tabs));
+    const closed = [];
+    for (const t of tabs) {
+      if (keep.has(t.tabId) || (tabs.length - closed.length <= 1)) continue; // keep one tab so the window stays
+      await C.send('close', { tabId: t.tabId }).catch(() => {});
+      closed.push(t.url.slice(0, 80));
+    }
+    // What stays open is waiting: put each kept tab back in its lane (a reload or restart loses the groups).
+    for (const r of open) if (keep.has(r.tabId)) await require('../lib/lanes').place(r);
+    out({ closed: closed.length, kept: [...keep].filter((id) => tabs.some((t) => t.tabId === id)).length });
+  },
+
+  /** jobctl lane <run|last> [owner|work|done]: move a run's tab to a lane by hand (no lane: its computed one). */
+  async lane({ args }) {
+    const R = require('../lib/runs');
+    const L = require('../lib/lanes');
+    const want = args[1];
+    if (want && !L.LANES[want]) return out({ ok: false, error: 'usage: jobctl lane <run|last> [owner|work|done]' }, 1);
+    const run = R.load(args[0] || 'last');
+    if (want) {
+      // Held until the run's status changes or it is continued (lib/lanes.js laneFor).
+      run.lane = want;
+      run.laneStatus = run.status;
+      R.save(run);
+    }
+    const placed = await L.place(run, want);
+    out({ ok: !!placed, run: run.id, lane: placed || L.laneFor(run), tab: run.tabId });
+  },
+
+  /**
+   * jobctl handoffs [--watch] [--interval S]: runs the owner handed back by dragging a red NEEDS YOU tab into JOBBOT
+   * WORKING (or DONE). One line each: `handoff <run> work|done <company> - <role>`. --watch keeps polling (a Monitor
+   * in the /apply session turns each line into `jobctl continue <run> --owner`).
+   */
+  async handoffs({ flags }) {
+    const R = require('../lib/runs');
+    const L = require('../lib/lanes');
+    const every = Math.max(1, Number(flags.interval) || 3) * 1000;
+    let down = false;
+    const look = async () => {
+      const [tabs, groups] = await Promise.all([C.send('tabs'), C.send('groups')]);
+      const applied = require('../lib/data').applied();
+      const open = [];
+      for (const id of R.list().slice(-60)) {
+        try {
+          const r = R.load(id);
+          if (R.isOpen(r, applied) && R.tabsInUse([r], tabs).length) open.push(r);
+        } catch (e) {
+          /* skip */
+        }
+      }
+      const lines = [];
+      for (const h of L.handoffs(open, tabs, groups)) {
+        h.run.handoffAt = new Date().toISOString(); // reported once; the continue clears it
+        R.save(h.run);
+        const what = `${h.run.company || ''} - ${(h.run.role || '').slice(0, 60)}`;
+        lines.push(h.to === 'work' ? `handoff ${h.run.id} work ${what} -> jobctl continue ${h.run.id} --owner` : `handoff ${h.run.id} done ${what} -> the owner moved it to DONE: check the tab (sent by hand? skip?)`);
+      }
+      return lines;
+    };
+    if (!flags.watch) {
+      const lines = await look();
+      return out(lines.length ? lines.join('\n') : 'no handoffs');
+    }
+    for (;;) {
+      try {
+        const lines = await look();
+        if (down) process.stdout.write('browser back\n');
+        down = false;
+        if (lines.length) process.stdout.write(lines.join('\n') + '\n');
+      } catch (e) {
+        if (!down) process.stdout.write(`browser not connected (${String(e.message).slice(0, 80)}); still watching\n`);
+        down = true;
+      }
+      await new Promise((r) => setTimeout(r, down ? 10000 : every));
+    }
+  },
+
+  /** jobctl lanes: re-sort every waiting run's tab into its lane (after a browser restart / jobctl reload). */
+  async lanes() {
+    const R = require('../lib/runs');
+    const L = require('../lib/lanes');
+    const applied = require('../lib/data').applied();
+    const tabs = await C.send('tabs');
+    const rows = [];
+    for (const id of R.list().slice(-40)) {
+      let r;
+      try {
+        r = R.load(id);
+      } catch (e) {
+        continue;
+      }
+      if (!R.isOpen(r, applied) || !R.tabsInUse([r], tabs).length) continue;
+      rows.push(`${(await L.place(r)) || 'none'}\t${r.company || ''} - ${(r.role || '').slice(0, 50)}`);
+    }
+    out(rows.length ? rows.join('\n') : 'no waiting run tabs');
+  },
+
+  async tabs() {
+    out(await C.send('tabs'));
+  },
+
+  pw({ args }) {
+    // Passwords never leave the keyring through jobctl (owner rule): no --show.
+    if (!args[0]) fail('usage: jobctl pw <site or url>');
+    const S = require('../lib/secrets');
+    const { created } = S.getOrCreate(args[0]);
+    out({ site: S.siteKey(args[0]), created, where: 'KWallet, Secret Service item "jobbot: ' + S.siteKey(args[0]) + '"' });
+  },
+};
+
+(async () => {
+  const { args, flags } = parse(process.argv.slice(2));
+  const name = args.shift() || 'help';
+  const fn = cmds[name];
+  if (!fn) fail(`unknown command "${name}"\n\n${HELP}`);
+  try {
+    if (MANUAL.has(name)) logManual(name, args, flags);
+    await fn({ args, flags });
+  } catch (err) {
+    fail(err.message || String(err));
+  }
+})();

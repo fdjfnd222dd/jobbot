@@ -1,0 +1,45 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>My Information</title></head>
+<body>
+<!-- Shape of Thornby's Workday "How Did You Hear About Us?" prompt (thornby.wd5, captured 2026-10-09, scrubbed):
+     first list = categories (promptLeafNode type "2", side chevron); a click opens that category's leaves (type "1")
+     under a header with a Back button and the category as promptTitle; a leaf click makes a pill. The rows render a
+     little after the list opens (Workday's list is virtualized). -->
+<div data-automation-id="formField-source">
+  <label for="source--source">How Did You Hear About Us?<abbr>*</abbr></label>
+  <div data-automation-id="multiSelectContainer">
+    <ul role="listbox" data-automation-id="selectedItemList" id="pills"></ul>
+    <input id="source--source" data-uxi-widget-type="selectinput" data-automation-id="searchBox" placeholder="Search" aria-required="true" value="">
+  </div>
+</div>
+<div id="popup"></div>
+<script>
+const TREE = { 'Job Fair': ['Job Fair'], 'Online': ['Thornby Website', 'Glassdoor', 'Handshake', 'Indeed', 'LinkedIn', 'Other', 'Veritone'], 'Other': ['Other'], 'Referral': ['Referral'] };
+const popup = document.getElementById('popup');
+const input = document.getElementById('source--source');
+function row(label, type) {
+  return `<div role="option" data-automation-id="menuItem"><div data-automation-id="promptLeafNode" data-uxi-multiselectlistitem-type="${type}"><div data-automation-id="promptOption" data-automation-label="${label}">${label}</div></div></div>`;
+}
+function show(cat) {
+  const labels = cat ? TREE[cat] : Object.keys(TREE);
+  const head = cat ? `<div data-automation-id="multiSelectHeader"><span data-automation-id="backButton"></span><div data-automation-id="promptTitle">${cat}</div></div>` : '';
+  popup.innerHTML = `<div data-automation-id="responsiveMonikerPrompt">${head}<div role="listbox" id="list"></div></div>`;
+  const list = document.getElementById('list');
+  // Virtualized: two rows at once, the rest a moment later.
+  list.innerHTML = labels.slice(0, 2).map((l) => row(l, cat ? 1 : 2)).join('');
+  setTimeout(() => { if (document.getElementById('list') === list) list.innerHTML = labels.map((l) => row(l, cat ? 1 : 2)).join(''); }, 120);
+}
+input.addEventListener('click', () => { if (!popup.firstChild) show(null); });
+popup.addEventListener('click', (e) => {
+  if (e.target.closest('[data-automation-id="multiSelectHeader"]')) return show(null);
+  const opt = e.target.closest('[data-automation-id="promptOption"]');
+  if (!opt) return;
+  const node = opt.closest('[data-automation-id="promptLeafNode"]');
+  const label = opt.getAttribute('data-automation-label');
+  if (node.getAttribute('data-uxi-multiselectlistitem-type') === '2') return show(label);
+  document.getElementById('pills').innerHTML = `<li><div data-automation-id="selectedItem" role="option"><p data-automation-id="promptOption" data-automation-label="${label}">${label}</p></div></li>`;
+  popup.innerHTML = '';
+});
+input.addEventListener('keydown', (e) => { if (e.key === 'Escape') popup.innerHTML = ''; });
+</script>
+</body></html>
